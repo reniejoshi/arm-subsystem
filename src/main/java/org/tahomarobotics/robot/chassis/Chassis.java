@@ -85,6 +85,11 @@ public class Chassis extends SubsystemIF {
 
     private final Thread odometryThread;
 
+    // Simulation
+
+    @Logged
+    private boolean isUsingHighFidelitySimulation = false;
+
     // Initialization
 
     private Chassis() {
@@ -295,6 +300,16 @@ public class Chassis extends SubsystemIF {
     private double lastUpdate = Timer.getFPGATimestamp();
     private double simHeading = 0;
 
+    /** Enables high fidelity simulation. */
+    public void useHighFidelitySimulation() {
+        isUsingHighFidelitySimulation = true;
+    }
+
+    /** Enables low fidelity simulation. */
+    public void useLowFidelitySimulation() {
+        isUsingHighFidelitySimulation = false;
+    }
+
     @Override
     public void onSimulationInit() {
         getStatusSignals().forEach(s -> s.setUpdateFrequency(1000));
@@ -304,16 +319,20 @@ public class Chassis extends SubsystemIF {
 
     @Override
     public void simulationPeriodic() {
-        modules.forEach(SwerveModule::simulationPeriodic);
+        modules.forEach(m -> m.simulationPeriodic(isUsingHighFidelitySimulation));
 
         double currentTime = Timer.getFPGATimestamp();
         double dT = Timer.getFPGATimestamp() - lastUpdate;
         lastUpdate = currentTime;
 
-        double dTheta = Units.radiansToDegrees(getChassisSpeeds().omegaRadiansPerSecond) * dT;
-        simHeading += dTheta;
-        pigeon.getSimState().setRawYaw(simHeading);
-        pigeon.getSimState().setAngularVelocityZ(dTheta);
+        if (isUsingHighFidelitySimulation) {
+            pigeon.getSimState().addYaw(getChassisSpeeds().omegaRadiansPerSecond * dT);
+        } else {
+            double dTheta = Units.radiansToDegrees(getChassisSpeeds().omegaRadiansPerSecond) * dT;
+            simHeading += dTheta;
+            pigeon.getSimState().setRawYaw(simHeading);
+            pigeon.getSimState().setAngularVelocityZ(dTheta);
+        }
     }
 
     // Status Signals

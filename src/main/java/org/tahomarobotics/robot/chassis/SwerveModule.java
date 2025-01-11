@@ -64,6 +64,7 @@ public class SwerveModule {
     private final StatusSignal<Angle> steerPosition;
     private final StatusSignal<AngularVelocity> steerVelocity;
     private final StatusSignal<Angle> drivePosition;
+    private final StatusSignal<Angle> driveRotorPosition;
     private final StatusSignal<AngularVelocity> driveVelocity;
     private final StatusSignal<AngularAcceleration> driveAcceleration;
     private final StatusSignal<Current> driveCurrent, steerCurrent;
@@ -93,6 +94,7 @@ public class SwerveModule {
         configurator.configureCancoder(steerEncoder, encoderConfiguration, angularOffset, descriptor.moduleName() + " encoder");
 
         drivePosition = driveMotor.getPosition();
+        driveRotorPosition = driveMotor.getRotorPosition();
         driveVelocity = driveMotor.getVelocity();
         driveAcceleration = driveMotor.getAcceleration();
 
@@ -104,6 +106,7 @@ public class SwerveModule {
 
         BaseStatusSignal.setUpdateFrequencyForAll(RobotConfiguration.ODOMETRY_UPDATE_FREQUENCY,
             drivePosition,
+            driveRotorPosition,
             driveVelocity,
             driveAcceleration,
             steerVelocity,
@@ -230,10 +233,23 @@ public class SwerveModule {
     }
 
     // Rework of Phoenix 6's `SimSwerveDrivetrain` simulation method.
-    public void simulationPeriodic() {
+    public void simulationPeriodic(boolean highFidelity) {
         double currentTime = Timer.getFPGATimestamp();
         double dT = currentTime - lastUpdateTime;
         lastUpdateTime = currentTime;
+
+        // Low-fidelity simulation
+        if (!highFidelity) {
+            driveRotorPosition.refresh();
+
+            driveMotorSimState.setRotorVelocity(driveMotorVelocity.Velocity);
+            driveMotorSimState.setRawRotorPosition(driveRotorPosition.getValueAsDouble() + driveMotorVelocity.Velocity * dT);
+
+            steerMotorSimState.setRawRotorPosition(steerMotorPosition.Position);
+            steerEncoderSimState.setRawPosition(steerMotorPosition.Position);
+
+            return;
+        }
 
         // Update supply voltage
         double voltage = RobotController.getBatteryVoltage();
