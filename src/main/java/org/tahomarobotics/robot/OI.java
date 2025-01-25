@@ -8,9 +8,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import org.tahomarobotics.robot.chassis.Chassis;
 import org.tahomarobotics.robot.chassis.commands.TeleopDriveCommand;
-import org.tahomarobotics.robot.elevator.Elevator;
-import org.tahomarobotics.robot.elevator.commands.ElevatorDefaultCommand;
-import org.tahomarobotics.robot.elevator.commands.ElevatorMoveCommand;
 import org.tahomarobotics.robot.util.SubsystemIF;
 
 @Logged(strategy = Logged.Strategy.OPT_IN)
@@ -22,7 +19,6 @@ public class OI extends SubsystemIF {
 
     private static final double DEADBAND = 0.09;
 
-    private final Elevator elevator = Elevator.getInstance();
     private final Chassis chassis = Chassis.getInstance();
 
     private final CommandXboxController driveController = new CommandXboxController(0);
@@ -46,18 +42,12 @@ public class OI extends SubsystemIF {
 
     public void configureBindings() {
         driveController.a().onTrue(Commands.runOnce(chassis::zeroHeading));
-
-        manipController.povUp().onTrue(new ElevatorMoveCommand(Elevator.ElevatorStates.HIGH));
-        manipController.povRight().onTrue(new ElevatorMoveCommand(Elevator.ElevatorStates.MID));
-        manipController.povDown().onTrue(new ElevatorMoveCommand(Elevator.ElevatorStates.LOW));
     }
 
     public void setDefaultCommands() {
         chassis.setDefaultCommand(new TeleopDriveCommand(
             this::getDriveLeftY, this::getDriveLeftX, this::getDriveRightX
         ));
-        elevator.setDefaultCommand(
-            new ElevatorDefaultCommand(() -> MathUtil.applyDeadband(manipController.getLeftY(), DEADBAND)));
     }
 
     // Inputs

@@ -6,7 +6,6 @@ import edu.wpi.first.epilogue.NotLogged;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.tahomarobotics.robot.chassis.Chassis;
-import org.tahomarobotics.robot.elevator.Elevator;
 import org.tahomarobotics.robot.util.SubsystemIF;
 
 import java.util.List;
@@ -19,14 +18,11 @@ public class Robot extends TimedRobot {
     private final OI oi = OI.getInstance();
     @Logged(name = "Chassis")
     private final Chassis chassis = Chassis.getInstance();
-    @Logged(name = "Elevator")
-    private final Elevator elevator = Elevator.getInstance();
 
     @NotLogged
     private final List<SubsystemIF> subsystems = List.of(
         oi.initialize(),
-        chassis.initialize(),
-        elevator.initialize()
+        chassis.initialize()
     );
 
     // Robot
