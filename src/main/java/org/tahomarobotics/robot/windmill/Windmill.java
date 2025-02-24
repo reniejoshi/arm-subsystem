@@ -365,29 +365,32 @@ public class Windmill extends SubsystemIF {
 
     @Override
     public void onTeleopInit() {
-        double angle = MathUtil.inputModulus(getArmPosition(), 0, 1);
-        Logger.info("Starting arm angle: {} rotations", angle);
-        if (angle > 0.5 && angle < 0.85) {
-            WindmillState collectState;
-            try {
-                collectState = WindmillKinematics.inverseKinematics(0, TrajectoryState.COLLECT.t2d, null, false);
-            } catch (WindmillKinematics.KinematicsException e) {
-                Logger.error("Cannot go to collect! This is a bug: {}", e);
-                return;
-            }
-            setState(collectState);
-            setTargetState(TrajectoryState.COLLECT);
-        } else {
-            WindmillState stowState;
-            try {
-                stowState = WindmillKinematics.inverseKinematics(0, TrajectoryState.STOW.t2d, null);
-            } catch (WindmillKinematics.KinematicsException e) {
-                Logger.error("Cannot go to stow! This is a bug: {}", e);
-                return;
-            }
-            setState(stowState);
-            setTargetState(TrajectoryState.STOW);
-        }
+        (Commands.waitUntil(() -> zeroed))
+            .andThen(Commands.runOnce(() -> {
+                double angle = MathUtil.inputModulus(getArmPosition(), 0, 1);
+                Logger.info("Starting arm angle: {} rotations", angle);
+                if (angle > 0.5 && angle < 0.85) {
+                    WindmillState collectState;
+                    try {
+                        collectState = WindmillKinematics.inverseKinematics(0, TrajectoryState.COLLECT.t2d, null, false);
+                    } catch (WindmillKinematics.KinematicsException e) {
+                        Logger.error("Cannot go to collect! This is a bug: {}", e);
+                        return;
+                    }
+                    setState(collectState);
+                    setTargetState(TrajectoryState.COLLECT);
+                } else {
+                    WindmillState stowState;
+                    try {
+                        stowState = WindmillKinematics.inverseKinematics(0, TrajectoryState.STOW.t2d, null);
+                    } catch (WindmillKinematics.KinematicsException e) {
+                        Logger.error("Cannot go to stow! This is a bug: {}", e);
+                        return;
+                    }
+                    setState(stowState);
+                    setTargetState(TrajectoryState.STOW);
+                }
+            })).schedule();
     }
 
     @Override

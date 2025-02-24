@@ -7,14 +7,14 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.tahomarobotics.robot.auto.Autonomous;
 import org.tahomarobotics.robot.chassis.Chassis;
-import org.tahomarobotics.robot.util.shims.FauxWatchdog;
-import org.tahomarobotics.robot.windmill.Windmill;
 import org.tahomarobotics.robot.climber.Climber;
 import org.tahomarobotics.robot.collector.Collector;
-import org.tahomarobotics.robot.indexer.Indexer;
 import org.tahomarobotics.robot.grabber.Grabber;
+import org.tahomarobotics.robot.indexer.Indexer;
 import org.tahomarobotics.robot.util.SubsystemIF;
+import org.tahomarobotics.robot.util.shims.FauxWatchdog;
 import org.tahomarobotics.robot.vision.Vision;
+import org.tahomarobotics.robot.windmill.Windmill;
 import org.tahomarobotics.robot.windmill.commands.WindmillTrajectories;
 import org.tinylog.Logger;
 

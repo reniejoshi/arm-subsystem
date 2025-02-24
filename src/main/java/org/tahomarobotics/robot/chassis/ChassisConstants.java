@@ -20,6 +20,9 @@ import java.util.Objects;
 public class ChassisConstants {
     // Physical
 
+    /** Approximate width of the robot with bumpers. */
+    public static final double BUMPER_WIDTH = Units.inchesToMeters(34);
+
     /** Width-wise distance between wheel centers in <strong>meters</strong> */
     private static final double TRACK_WIDTH = Units.inchesToMeters(20.75);
     /** Length-wise distance between wheel centers in <strong>meters</strong> */

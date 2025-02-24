@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import org.tahomarobotics.robot.auto.AutoConstants;
+import org.tahomarobotics.robot.auto.DriveToPoseCommand;
 import org.tahomarobotics.robot.chassis.Chassis;
 import org.tahomarobotics.robot.chassis.ChassisCommands;
 import org.tahomarobotics.robot.climber.Climber;
@@ -76,6 +78,10 @@ public class OI extends SubsystemIF {
         // Chassis
 
         controller.povDown().onTrue(Commands.runOnce(chassis::orientToZeroHeading));
+
+        controller.rightBumper().whileTrue(Commands.deferredProxy(() -> new DriveToPoseCommand(
+            AutoConstants.getNearestReefPoleScorePosition(Chassis.getInstance().getPose().getTranslation())
+        )));
 
         // Collector
 
