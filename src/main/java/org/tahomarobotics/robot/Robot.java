@@ -16,6 +16,7 @@ import org.tahomarobotics.robot.climber.Climber;
 import org.tahomarobotics.robot.collector.Collector;
 import org.tahomarobotics.robot.grabber.Grabber;
 import org.tahomarobotics.robot.indexer.Indexer;
+import org.tahomarobotics.robot.lights.LED;
 import org.tahomarobotics.robot.util.SubsystemIF;
 import org.tahomarobotics.robot.vision.Vision;
 import org.tahomarobotics.robot.windmill.Windmill;
@@ -36,6 +37,7 @@ public class Robot extends LoggedRobot {
         Collector.getInstance().initialize(),
         Climber.getInstance().initialize(),
         Grabber.getInstance().initialize(),
+        LED.getInstance().initialize(),
         OI.getInstance().initialize()
     );
 

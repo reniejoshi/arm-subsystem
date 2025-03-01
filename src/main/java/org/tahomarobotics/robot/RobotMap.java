@@ -35,6 +35,8 @@ public final class RobotMap {
     public static final int CLIMBER_FOLLOWER = 20;
     public static final int CLIMBER_RATCHET_SOLENOID = 25;
 
+    public static final int LED = 26;
+
     public record SwerveModuleDescriptor(String moduleName, Translation2d offset, int driveId, int steerId,
                                          int encoderId) {}
 }
