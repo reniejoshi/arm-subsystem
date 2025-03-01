@@ -93,8 +93,8 @@ public class SystemCheck {
     public static Command createClimberTestCommand(Climber climber) {
         return Commands.race(
             ensureNominal(
-                new Measurement("Climber Lead", climber::getLeadCurrent, 0, 0), // TODO: No Climber
-                new Measurement("Climber Follow", climber::getFollowerCurrent, 0, 0)
+                new Measurement("Climber Lead", climber::getLeadCurrent, .025, .15),
+                new Measurement("Climber Follow", climber::getFollowerCurrent, .025, .15)
             ),
             climber.runOnce(climber::deploy)
                    .andThen(Commands.waitUntil(climber::isAtTargetPosition))
@@ -152,7 +152,18 @@ public class SystemCheck {
         );
     }
 
+    public static Command createEverythingExceptChassisTestCommand() {
+        return Commands.parallel(
+            createClimberTestCommand(Climber.getInstance()),
+            createGrabberTestCommand(Grabber.getInstance()),
+            createCollectorTestCommand(Collector.getInstance()),
+            createIndexerTestCommand(Indexer.getInstance()),
+            createWindmillTestCommand(Windmill.getInstance())
+        );
+    }
+
     public static void initialize() {
+//        SmartDashboard.putData("Checks/Run Everything Except Chassis", createEverythingExceptChassisTestCommand());
         SmartDashboard.putData("Checks/Run Collector", createCollectorTestCommand(Collector.getInstance()));
         SmartDashboard.putData("Checks/Run Indexer", createIndexerTestCommand(Indexer.getInstance()));
         SmartDashboard.putData("Checks/Run Grabber", createGrabberTestCommand(Grabber.getInstance()));
