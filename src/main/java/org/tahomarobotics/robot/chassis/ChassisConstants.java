@@ -38,7 +38,7 @@ public class ChassisConstants {
     public static final double MASS = ROBOT_MASS + BATTERY_MASS + BUMPER_MASS;
 
     /** Approximate radius of the wheel in <strong>meters</strong> */
-    private static final double WHEEL_RADIUS = Units.inchesToMeters(3.95 / 2 - 0.1 /* Tread compression */);
+    private static final double WHEEL_RADIUS = Units.inchesToMeters(3.95 / 2 - 0.1);
     /** Approximate circumference of the wheel in <strong>meters</strong> */
     private static final double WHEEL_CIRCUMFERENCE = 2 * Math.PI * WHEEL_RADIUS;
     /** Approximate Moment of Inertia based on CAD in <strong>kilogram meter squared</strong>. */
