@@ -5,85 +5,70 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import org.photonvision.targeting.PhotonTrackedTarget;
-import org.tahomarobotics.robot.chassis.Chassis;
 
+import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.tahomarobotics.robot.vision.VisionConstants.FIELD_LAYOUT;
 
 public class CameraMountEstimation {
+    public static Consumer<AprilTagCamera.EstimatedRobotPose> stream(Consumer<AprilTagCamera.EstimatedRobotPose> original) {
+        // Whether to estimate the next AprilTag update from each camera.
+        Map<String, Boolean> estimate =
+            Stream.of(VisionConstants.ELEVATOR_SWERVE, VisionConstants.CLIMBER_SWERVE)
+                  .collect(Collectors.toMap(VisionConstants.CameraConfiguration::name, $ -> false));
 
-    private final Consumer<AprilTagCamera.EstimatedRobotPose> estimationCallback =
-        Chassis.getInstance()::processVisionUpdate;
-
-    private boolean disableCameraPoseEstimate = false;
-
-    public CameraMountEstimation() {
-
+        // Initialize all of our inputs on SmartDashboard
         SmartDashboard.putData(
-            "Chassis Pose!", Commands.runOnce(() -> {
-                setRobotPose(Chassis.getInstance().getPose());
-
-            })
+            "Estimate Camera Positions", Commands.runOnce(() -> estimate.replaceAll((n, v) -> true))
         );
 
-        SmartDashboard.putBoolean("CameraEst", disableCameraPoseEstimate);
+        SmartDashboard.putNumber("Actual Chassis Pose X (Meters)", 0);
+        SmartDashboard.putNumber("Actual Chassis Pose Y (Meters)", 0);
+        SmartDashboard.putNumber("Actual Chassis Pose Heading (Degrees)", 0);
 
-        setRobotPose(Chassis.getInstance().getPose());
-    }
-
-    public Consumer<AprilTagCamera.EstimatedRobotPose> chainConsumer(Consumer<AprilTagCamera.EstimatedRobotPose> original) {
         return estimatedRobotPose -> {
-            calculate(estimatedRobotPose);
-            if (!disableCameraPoseEstimate) {
-                original.accept(estimatedRobotPose);
+            if (estimate.getOrDefault(estimatedRobotPose.cameraName(), false)) {
+                double x = SmartDashboard.getNumber("Actual Chassis Pose X (Meters)", 0);
+                double y = SmartDashboard.getNumber("Actual Chassis Pose Y (Meters)", 0);
+                double h = Units.degreesToRadians(SmartDashboard.getNumber("Actual Chassis Pose Heading (Degrees)", 0));
+
+                Pose2d actualChassisPose = new Pose2d(x, y, new Rotation2d(h));
+
+                for (PhotonTrackedTarget target : estimatedRobotPose.targets()) {
+                    // Get the camera-to-target transform
+                    Transform3d cameraToTargetTranspose = target.getBestCameraToTarget();
+
+                    // Get the expected field-pose of the corresponding apriltag on the field
+                    Pose3d targetPose = FIELD_LAYOUT.getTagPose(target.getFiducialId()).orElseThrow();
+
+                    // Subtract the camera-to-target transform from the target field-pose to get the expected field-to-camera position
+                    Pose3d cameraPose = targetPose.plus(cameraToTargetTranspose.inverse());
+
+                    // Subtract the field-to-camera pose from the actual field-to-chassis pose to get the expected camera-to-chassis transform
+                    Transform3d cameraToRobotTransform = cameraPose.minus(new Pose3d(actualChassisPose));
+
+                    // Decompose the transformation into it's components
+                    Translation3d t = cameraToRobotTransform.getTranslation();
+                    Rotation3d r = cameraToRobotTransform.getRotation();
+
+                    // Publish the results to SmartDashboard
+                    SmartDashboard.putNumberArray(
+                        "Camera Mount Estimation (Inches and Degrees)/" + estimatedRobotPose.cameraName(), new double[]{
+                            Units.metersToInches(t.getX()),
+                            Units.metersToInches(t.getY()),
+                            Units.metersToInches(t.getZ()),
+                            Units.radiansToDegrees(r.getX()),
+                            Units.radiansToDegrees(r.getY()),
+                            Units.radiansToDegrees(r.getZ())}
+                    );
+                }
+
+                estimate.put(estimatedRobotPose.cameraName(), false);
             }
+            original.accept(estimatedRobotPose);
         };
-    }
-
-
-    public void setRobotPose(Pose2d robotPose2d) {
-        SmartDashboard.putNumber("pose-X", Units.metersToInches(robotPose2d.getX()));
-        SmartDashboard.putNumber("pose-Y", Units.metersToInches(robotPose2d.getY()));
-        SmartDashboard.putNumber("pose-Heading", robotPose2d.getRotation().getDegrees());
-        System.out.println("pose update to chassis");
-    }
-
-    public void calculate(AprilTagCamera.EstimatedRobotPose estimatedRobotPose) {
-
-        disableCameraPoseEstimate = SmartDashboard.getBoolean("CameraEst", false);
-
-        double x = Units.inchesToMeters(SmartDashboard.getNumber("pose-X", 0));
-        double y = Units.inchesToMeters(SmartDashboard.getNumber("pose-Y", 0));
-        double h = Units.degreesToRadians(SmartDashboard.getNumber("pose-Heading", 0));
-
-        Pose2d robotPose2d = new Pose2d(x, y, new Rotation2d(h));
-
-        for (PhotonTrackedTarget target : estimatedRobotPose.targets()) {
-
-            Transform3d cameraToTargetTranspose = target.getBestCameraToTarget();
-
-            Pose3d targetPose = FIELD_LAYOUT.getTagPose(target.getFiducialId()).orElseThrow();
-
-            Pose3d cameraPose = targetPose.plus(cameraToTargetTranspose.inverse());
-
-            Transform3d cameraToRobotTransform = cameraPose.minus(new Pose3d(robotPose2d));
-
-            Translation3d t = cameraToRobotTransform.getTranslation();
-            Rotation3d r = cameraToRobotTransform.getRotation();
-            // TODO undo this change
-            SmartDashboard.putNumberArray(
-                estimatedRobotPose.cameraName() + "-Camera2Robot", new double[]{
-                    Units.metersToInches(t.getX()),
-                    Units.metersToInches(t.getY()),
-                    Units.metersToInches(t.getZ()),
-                    Units.radiansToDegrees(r.getX()),
-                    Units.radiansToDegrees(r.getY()),
-                    Units.radiansToDegrees(r.getZ())}
-            );
-
-            System.out.println(estimatedRobotPose.cameraName() + " (" + target.fiducialId + ")---> " + cameraToRobotTransform);
-
-        }
     }
 }

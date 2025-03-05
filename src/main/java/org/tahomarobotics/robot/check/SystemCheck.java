@@ -61,15 +61,15 @@ public class SystemCheck {
         return Commands.race(
             ensureNominal(
                 new Measurement("Collector", collector::getCollectorCurrent, 5, 7),
-                new Measurement("Left Deploy", collector::getLeftDeployCurrent, 0.5, 1.25),
-                new Measurement("Right Deploy", collector::getRightDeployCurrent, 0.5, 1.25)
+                new Measurement("Left Deploy", collector::getLeftDeploymentCurrent, 0.5, 1.25),
+                new Measurement("Right Deploy", collector::getRightDeploymentCurrent, 0.5, 1.25)
             ),
             collector.runOnce(collector::deploymentTransitionToCollect)
-                     .andThen(Commands.waitUntil(collector::isAtTargetDeployState))
+                     .andThen(Commands.waitUntil(collector::isAtTargetDeploymentState))
                      .andThen(collector.runOnce(collector::collectorTransitionToCollecting))
                      .andThen(Commands.waitSeconds(3))
                      .andThen(collector.runOnce(collector::deploymentTransitionToStow))
-                     .andThen(Commands.waitUntil(collector::isAtTargetDeployState))
+                     .andThen(Commands.waitUntil(collector::isAtTargetDeploymentState))
         );
     }
 
@@ -152,18 +152,7 @@ public class SystemCheck {
         );
     }
 
-    public static Command createEverythingExceptChassisTestCommand() {
-        return Commands.parallel(
-            createClimberTestCommand(Climber.getInstance()),
-            createGrabberTestCommand(Grabber.getInstance()),
-            createCollectorTestCommand(Collector.getInstance()),
-            createIndexerTestCommand(Indexer.getInstance()),
-            createWindmillTestCommand(Windmill.getInstance())
-        );
-    }
-
     public static void initialize() {
-//        SmartDashboard.putData("Checks/Run Everything Except Chassis", createEverythingExceptChassisTestCommand());
         SmartDashboard.putData("Checks/Run Collector", createCollectorTestCommand(Collector.getInstance()));
         SmartDashboard.putData("Checks/Run Indexer", createIndexerTestCommand(Indexer.getInstance()));
         SmartDashboard.putData("Checks/Run Grabber", createGrabberTestCommand(Grabber.getInstance()));

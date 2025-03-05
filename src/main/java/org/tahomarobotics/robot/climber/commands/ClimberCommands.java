@@ -16,8 +16,8 @@ public class ClimberCommands {
         return climber.runOnce(climber::zeroPosition)
                       .andThen(Commands.waitUntil(
                           () ->
-                              Collector.getInstance().getTargetDeployState() == CollectorConstants.TargetDeployState.CORAL_COLLECT ||
-                              Collector.getInstance().getTargetDeployState() == CollectorConstants.TargetDeployState.ALGAE_COLLECT))
+                              Collector.getInstance().getTargetDeploymentState() == CollectorConstants.TargetDeploymentState.CORAL_COLLECT ||
+                              Collector.getInstance().getTargetDeploymentState() == CollectorConstants.TargetDeploymentState.ALGAE_COLLECT))
                       .andThen(climber.runOnce(climber::stow))
                       .onlyIf(() -> climber.getClimbState() == Climber.ClimberState.ZEROED);
     }

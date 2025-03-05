@@ -30,7 +30,6 @@ public class CalibrationData<T extends Serializable> {
 
     private final File file;
     private T[] data;
-    private boolean isCalibrated;
 
     /**
      * Take care of reading and writing of calibration data to a file on the robot.
@@ -49,8 +48,6 @@ public class CalibrationData<T extends Serializable> {
         try (ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(file))) {
             data = castData((T) inputStream.readObject());
             Logger.info("Successfully read calibration data <{}> -> {}", file.getAbsolutePath(), formatData());
-
-            isCalibrated = true;
         } catch (Exception e) {
             Logger.error(e, "Failed to read calibration data <{}>", file.getAbsolutePath());
         }
@@ -70,10 +67,6 @@ public class CalibrationData<T extends Serializable> {
      */
     public T get() {
         return data[0];
-    }
-    
-    public boolean isCalibrated() {
-        return isCalibrated;
     }
 
     /**

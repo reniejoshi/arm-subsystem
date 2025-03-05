@@ -2,7 +2,6 @@ package org.tahomarobotics.robot.windmill.commands;
 
 import edu.wpi.first.math.Pair;
 import org.tahomarobotics.robot.util.ImmutableLazyOptionalMap;
-import org.tahomarobotics.robot.util.SubsystemIF;
 import org.tahomarobotics.robot.windmill.WindmillConstants.TrajectoryState;
 import org.tahomarobotics.robot.windmill.WindmillTrajectory;
 import org.tinylog.Logger;
@@ -22,10 +21,6 @@ public class WindmillTrajectories {
 
     public static Optional<WindmillTrajectory> getTrajectory(TrajectoryState from, TrajectoryState to) {
         return trajectories.get(Pair.of(from, to));
-    }
-
-    public static Optional<WindmillTrajectory> getEditorTrajectory() {
-        return WindmillTrajectory.loadFromNetworkTables();
     }
 
     static {

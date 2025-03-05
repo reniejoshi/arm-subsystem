@@ -41,9 +41,6 @@ public class ChassisConstants {
     private static final double WHEEL_RADIUS = Units.inchesToMeters(3.95 / 2 - 0.1);
     /** Approximate circumference of the wheel in <strong>meters</strong> */
     private static final double WHEEL_CIRCUMFERENCE = 2 * Math.PI * WHEEL_RADIUS;
-    /** Approximate Moment of Inertia based on CAD in <strong>kilogram meter squared</strong>. */
-    // https://www.swervedrivespecialties.com/collections/mk4i-parts/products/billet-wheel-4d-x-1-5w-bearing-bore
-    public static final double WHEEL_MOI = 0.00031307;
 
     public static final Translation2d FRONT_LEFT_OFFSET = new Translation2d(HALF_WHEELBASE, HALF_TRACK_WIDTH);
     public static final Translation2d FRONT_RIGHT_OFFSET = new Translation2d(HALF_WHEELBASE, -HALF_TRACK_WIDTH);
@@ -59,19 +56,8 @@ public class ChassisConstants {
 
     public static final double ROBOT_MOI = 1.0 / 12.0 * MASS * (TRACK_WIDTH * TRACK_WIDTH + WHEELBASE * WHEELBASE);
 
-    /**
-     * Load inertia for each drive motor in <strong>kilogram meter squared</strong>.
-     * <p>
-     * {@code J_load = M / N * (r / G)^2} where M is the mass of the robot,
-     * N is the number of modules, r is the radius of the wheel, and G is the gear ratio.
-     */
-    public static final double DRIVE_MOTOR_MOI = MASS / 4 * Math.pow(WHEEL_RADIUS * DRIVE_REDUCTION, 2);
     /** Coefficient of friction between the wheel and the ground. */
     public static final double WHEEL_COF = 1.0; // Placeholder
-    // Simulation
-
-    /** A semi-arbitrary scaling factor for the motor model MOIs. */
-    public static final double MOI_SCALING_FACTOR = 10;
 
     // Motion
 

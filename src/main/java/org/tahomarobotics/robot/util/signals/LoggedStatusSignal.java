@@ -32,6 +32,5 @@ public record LoggedStatusSignal(String name, BaseStatusSignal signal) {
             Logger.recordOutput(prefix_ + "status", signal.signal().getStatus());
             Logger.recordOutput(prefix_ + "units", signal.signal().getUnits());
         }
-        ;
     }
 }

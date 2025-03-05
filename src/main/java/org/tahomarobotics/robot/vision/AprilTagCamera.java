@@ -78,7 +78,6 @@ public class AprilTagCamera implements AutoCloseable {
 
     // Camera
 
-    @SuppressWarnings({"unused", "FieldCanBeLocal"})
     private final String name;
     protected final CameraConfiguration configuration;
 

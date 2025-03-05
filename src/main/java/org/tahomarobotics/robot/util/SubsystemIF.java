@@ -7,7 +7,7 @@ import java.util.List;
 
 public abstract class SubsystemIF extends SubsystemBase {
     // Initialization
-    
+
     public SubsystemIF initialize() { return this; }
 
     public void onDisabledInit() {}
@@ -22,15 +22,5 @@ public abstract class SubsystemIF extends SubsystemBase {
 
     public List<SysIdTests.Test> getSysIdTests() {
         return List.of();
-    }
-
-    // Energy
-
-    public double getEnergyUsed() {
-        return 0;
-    }
-
-    public double getTotalCurrent() {
-        return 0;
     }
 }

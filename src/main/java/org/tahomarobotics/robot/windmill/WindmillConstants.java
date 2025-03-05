@@ -49,13 +49,10 @@ public class WindmillConstants {
     public static final double ELEVATOR_MID_POSE = 0.45; // Meters
     public static final double ELEVATOR_LOW_POSE = 0.05; // Meters
 
-    public static final double ELEVATOR_LOW_STAGE_MAX = 0.5461; // Meters
-
     // Tolerances
 
     public static final double ELEVATOR_POSITION_TOLERANCE = 0.005; // Meters
     public static final double ELEVATOR_VELOCITY_TOLERANCE = 0.01; // Meters / sec
-    public static final double TRAJECTORY_POSITION_TOLERANCE = 0.2; // Meters
 
     // Motion
 

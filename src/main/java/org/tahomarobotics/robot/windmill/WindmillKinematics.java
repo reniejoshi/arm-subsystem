@@ -1,6 +1,5 @@
 package org.tahomarobotics.robot.windmill;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 
 import static org.tahomarobotics.robot.windmill.WindmillConstants.*;
@@ -37,7 +36,7 @@ public class WindmillKinematics {
         }
 
         armAngleRadians = Math.acos(endpointXMeters / ARM_LENGTH);
-        if (!swingArmUp) armAngleRadians *= -1;
+        if (!swingArmUp) { armAngleRadians *= -1; }
         elevatorHeightMeters = endpointYMeters - Math.sin(armAngleRadians) * ARM_LENGTH;
 
         // TODO: The minimum endpoint pose does not work due to collisions with various mechanisms
@@ -45,13 +44,7 @@ public class WindmillKinematics {
             throw new KinematicsException("Calculated elevator height isn't achievable! Attempting to go to " + elevatorHeightMeters + " meters.");
         }
 
-        WindmillState state = WindmillState.fromPrevious(time, elevatorHeightMeters, armAngleRadians, previousState);
-
-//        if (previousState != null && !state.isAchievable()) {
-//            throw new KinematicsException("Calculated state exceeds physical constrains!\n\tState: " + state + "\n\tPrevious State: " + previousState);
-//        }
-
-        return state;
+        return WindmillState.fromPrevious(time, elevatorHeightMeters, armAngleRadians, previousState);
     }
 
     public static Translation2d forwardKinematics(WindmillState state) {

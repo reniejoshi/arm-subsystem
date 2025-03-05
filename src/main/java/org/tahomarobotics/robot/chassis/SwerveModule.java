@@ -25,8 +25,6 @@ import org.tahomarobotics.robot.RobotMap;
 import org.tahomarobotics.robot.util.RobustConfigurator;
 import org.tahomarobotics.robot.util.signals.LoggedStatusSignal;
 
-import java.util.Objects;
-
 import static org.tahomarobotics.robot.chassis.ChassisConstants.*;
 
 public class SwerveModule {
@@ -66,21 +64,12 @@ public class SwerveModule {
     private final PositionDutyCycle steerMotorPosition = new PositionDutyCycle(0.0).withEnableFOC(
         RobotConfiguration.CANIVORE_PHOENIX_PRO);
 
-    // Temp
-
-    // TODO: This sucks, but is the easiest way to do this right now.
-    double steerReduction;
-
     // Initialization
 
     public SwerveModule(RobotMap.SwerveModuleDescriptor descriptor, double angularOffset) {
         name = descriptor.moduleName();
         translationOffset = descriptor.offset();
         this.angularOffset = angularOffset;
-
-        // TODO: This sucks, but is the easiest way to do this right now.
-        steerReduction = Objects.equals(
-            RobotMap.BACK_LEFT_MOD.moduleName(), name) ? Type.MK4n.steerReduction : Type.MK4i.steerReduction;
 
         driveMotor = new TalonFX(descriptor.driveId(), RobotConfiguration.CANBUS_NAME);
         steerMotor = new TalonFX(descriptor.steerId(), RobotConfiguration.CANBUS_NAME);
@@ -121,7 +110,7 @@ public class SwerveModule {
     // Calibration
 
     public void initializeCalibration() {
-        RobustConfigurator.trySetCancoderAngularOffset(name + " Encoder", steerEncoder, 0);
+        RobustConfigurator.trySetCANcoderAngularOffset(name + " Encoder", steerEncoder, 0);
         RobustConfigurator.trySetMotorNeutralMode(name + " Steer Motor", steerMotor, NeutralModeValue.Coast);
     }
 
@@ -132,7 +121,7 @@ public class SwerveModule {
     }
 
     public void cancelCalibration() {
-        RobustConfigurator.trySetCancoderAngularOffset(name + " Encoder", steerEncoder, angularOffset);
+        RobustConfigurator.trySetCANcoderAngularOffset(name + " Encoder", steerEncoder, angularOffset);
         RobustConfigurator.trySetMotorNeutralMode(name + " Steer Motor", steerMotor, NeutralModeValue.Brake);
     }
 

@@ -9,11 +9,11 @@ public class CollectorCommands {
     public static Command createZeroCommand(Collector collector) {
         return collector.runOnce(collector::setZeroingVoltage)
                         .andThen(Commands.waitSeconds(0.1))
-                        .andThen(Commands.waitUntil(collector::isDeployStopped))
-                        .withTimeout(CollectorConstants.DEPLOY_ZEROING_TIMEOUT)
+                        .andThen(Commands.waitUntil(collector::isDeploymentStopped))
+                        .withTimeout(CollectorConstants.DEPLOYMENT_ZEROING_TIMEOUT)
                         .andThen(collector::zero)
                         .withInterruptBehavior(Command.InterruptionBehavior.kCancelIncoming)
-                        .onlyIf(() -> collector.getTargetDeployState() == CollectorConstants.TargetDeployState.ZEROED);
+                        .onlyIf(() -> collector.getTargetDeploymentState() == CollectorConstants.TargetDeploymentState.ZEROED);
     }
 
     public static Command createDeploymentControlCommand(Collector collector) {
@@ -36,7 +36,7 @@ public class CollectorCommands {
     /** @return On true and on false commands. */
     public static Pair<Command, Command> createCollectorControlCommands(Collector collector) {
         Command onTrue = collector.runOnce(() -> {
-            if (collector.isDeploymentCollecting() && !collector.isHoldingAlgae() && !Indexer.getInstance().isBeanBakeTripped()) {
+            if (collector.isDeploymentCollecting() && collector.isNotHoldingAlgae() && !Indexer.getInstance().isBeanBakeTripped()) {
                 collector.collectorTransitionToCollecting();
             }
         });

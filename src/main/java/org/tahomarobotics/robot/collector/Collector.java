@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.tahomarobotics.robot.RobotConfiguration;
 import org.tahomarobotics.robot.RobotMap;
-import org.tahomarobotics.robot.indexer.Indexer;
 import org.tahomarobotics.robot.util.RobustConfigurator;
 import org.tahomarobotics.robot.util.SubsystemIF;
 import org.tahomarobotics.robot.util.game.GamePiece;
@@ -41,9 +40,9 @@ public class Collector extends SubsystemIF {
 
     // Status Signals
 
-    private final StatusSignal<Angle> leftDeployPosition, rightDeployPosition;
-    private final StatusSignal<AngularVelocity> leftDeployVelocity, rightDeployVelocity, collectorVelocity;
-    private final StatusSignal<Current> collectorCurrent, leftDeployCurrent, rightDeployCurrent;
+    private final StatusSignal<Angle> leftDeploymentPosition;
+    private final StatusSignal<AngularVelocity> leftDeploymentVelocity, rightDeploymentVelocity;
+    private final StatusSignal<Current> collectorCurrent, leftDeploymentCurrent, rightDeploymentCurrent;
 
     private final LoggedStatusSignal[] statusSignals;
 
@@ -59,7 +58,7 @@ public class Collector extends SubsystemIF {
     // State
 
     @AutoLogOutput(key = "Collector/Target Deploy State")
-    private TargetDeployState targetDeployState = TargetDeployState.ZEROED;
+    private TargetDeploymentState targetDeploymentState = TargetDeploymentState.ZEROED;
     @AutoLogOutput(key = "Collector/Target Collector State")
     private TargetCollectorState targetCollectorState = TargetCollectorState.DISABLED;
     @AutoLogOutput(key = "Game Piece Mode")
@@ -76,35 +75,31 @@ public class Collector extends SubsystemIF {
 
         // Configure hardware
 
-        RobustConfigurator.tryConfigureTalonFX("Collector Left Motor", leftMotor, deployLeftMotorConfiguration);
+        RobustConfigurator.tryConfigureTalonFX("Collector Left Motor", leftMotor, deploymentLeftMotorConfiguration);
         RobustConfigurator.tryConfigureTalonFX(
             "Collector Right Motor", rightMotor,
-            deployLeftMotorConfiguration.withMotorOutput(
-                deployRightMotorOutputConfiguration)
+            deploymentLeftMotorConfiguration.withMotorOutput(deploymentRightMotorOutputConfiguration)
         );
         RobustConfigurator.tryConfigureTalonFX("Collector Collect Motor", collectorMotor, collectorMotorConfig);
 
         // Bind status signals
 
-        leftDeployPosition = leftMotor.getPosition();
-        rightDeployPosition = rightMotor.getPosition();
-        leftDeployVelocity = leftMotor.getVelocity();
-        rightDeployVelocity = rightMotor.getVelocity();
+        leftDeploymentPosition = leftMotor.getPosition();
+        leftDeploymentVelocity = leftMotor.getVelocity();
+        rightDeploymentVelocity = rightMotor.getVelocity();
 
-        collectorVelocity = collectorMotor.getVelocity();
-
-        leftDeployCurrent = leftMotor.getSupplyCurrent();
-        rightDeployCurrent = rightMotor.getSupplyCurrent();
+        leftDeploymentCurrent = leftMotor.getSupplyCurrent();
+        rightDeploymentCurrent = rightMotor.getSupplyCurrent();
         collectorCurrent = collectorMotor.getSupplyCurrent();
 
         statusSignals = new LoggedStatusSignal[]{
-            new LoggedStatusSignal("Left Deploy Position", leftDeployPosition),
-            new LoggedStatusSignal("Right Deploy Position", rightDeployPosition),
-            new LoggedStatusSignal("Left Deploy Velocity", leftDeployVelocity),
-            new LoggedStatusSignal("Right Deploy Velocity", rightDeployVelocity),
-            new LoggedStatusSignal("Collector Velocity", collectorVelocity),
-            new LoggedStatusSignal("Left Deploy Current", leftDeployCurrent),
-            new LoggedStatusSignal("Right Deploy Current", rightDeployCurrent),
+            new LoggedStatusSignal("Left Deployment Position", leftDeploymentPosition),
+            new LoggedStatusSignal("Right Deployment Position", rightMotor.getPosition()),
+            new LoggedStatusSignal("Left Deployment Velocity", leftDeploymentVelocity),
+            new LoggedStatusSignal("Right Deployment Velocity", rightDeploymentVelocity),
+            new LoggedStatusSignal("Collector Velocity", collectorMotor.getVelocity()),
+            new LoggedStatusSignal("Left Deployment Current", leftDeploymentCurrent),
+            new LoggedStatusSignal("Right Deployment Current", rightDeploymentCurrent),
             new LoggedStatusSignal("Collector Collect Current", collectorCurrent)
         };
 
@@ -116,42 +111,40 @@ public class Collector extends SubsystemIF {
         return INSTANCE;
     }
 
-    private static final Indexer indexer = Indexer.getInstance();
-
     // -- Zeroing --
 
     public void setZeroingVoltage() {
-        leftMotor.setVoltage(DEPLOY_ZEROING_VOLTAGE);
-        rightMotor.setVoltage(DEPLOY_ZEROING_VOLTAGE);
+        leftMotor.setVoltage(DEPLOYMENT_ZEROING_VOLTAGE);
+        rightMotor.setVoltage(DEPLOYMENT_ZEROING_VOLTAGE);
     }
 
-    public boolean isDeployStopped() {
-        return leftDeployVelocity.getValueAsDouble() < DEPLOY_MOVING_VELOCITY_THRESHOLD &&
-               rightDeployVelocity.getValueAsDouble() < DEPLOY_MOVING_VELOCITY_THRESHOLD;
+    public boolean isDeploymentStopped() {
+        return leftDeploymentVelocity.getValueAsDouble() < DEPLOYMENT_MOVING_VELOCITY_THRESHOLD &&
+               rightDeploymentVelocity.getValueAsDouble() < DEPLOYMENT_MOVING_VELOCITY_THRESHOLD;
     }
 
     public void zero() {
         if (RobotState.isDisabled()) { return; }
         Logger.info("Zeroed collector.");
 
-        leftMotor.setPosition(TargetDeployState.ZEROED.angle);
-        rightMotor.setPosition(TargetDeployState.ZEROED.angle);
+        leftMotor.setPosition(TargetDeploymentState.ZEROED.angle);
+        rightMotor.setPosition(TargetDeploymentState.ZEROED.angle);
 
-        targetDeployState = TargetDeployState.STOW;
-        setDeploymentControl(targetDeployState);
+        targetDeploymentState = TargetDeploymentState.STOW;
+        setDeploymentControl(targetDeploymentState);
     }
 
     // -- Deployment State Machine --
 
-    public TargetDeployState getTargetDeployState() {
-        return targetDeployState;
+    public TargetDeploymentState getTargetDeploymentState() {
+        return targetDeploymentState;
     }
 
-    public boolean isAtTargetDeployState() {
-        return Math.abs(targetDeployState.angle - leftDeployPosition.getValueAsDouble()) < DEPLOY_AT_POSITION_THRESHOLD && isDeployStopped();
+    public boolean isAtTargetDeploymentState() {
+        return Math.abs(targetDeploymentState.angle - leftDeploymentPosition.getValueAsDouble()) < DEPLOYMENT_AT_POSITION_THRESHOLD && isDeploymentStopped();
     }
 
-    private void setDeploymentControl(TargetDeployState state) {
+    private void setDeploymentControl(TargetDeploymentState state) {
         leftMotor.setControl(positionControl.withPosition(state.angle));
         rightMotor.setControl(positionControl);
     }
@@ -162,27 +155,27 @@ public class Collector extends SubsystemIF {
     private void syncDeploymentControl() {
         // Ensure we transition to the correct mode.
         if (isDeploymentCollecting()) {
-            targetDeployState = collectionMode == GamePiece.CORAL ?
-                TargetDeployState.CORAL_COLLECT :
-                TargetDeployState.ALGAE_COLLECT;
+            targetDeploymentState = collectionMode == GamePiece.CORAL ?
+                TargetDeploymentState.CORAL_COLLECT :
+                TargetDeploymentState.ALGAE_COLLECT;
         }
 
-        setDeploymentControl(targetDeployState);
+        setDeploymentControl(targetDeploymentState);
     }
 
     // Transitions
 
-    private void setTargetDeployState(TargetDeployState state) {
+    private void setTargetDeploymentState(TargetDeploymentState state) {
         if (checkZeroingGuard()) { return; }
 
-        targetDeployState = state;
+        targetDeploymentState = state;
         syncDeploymentControl();
     }
 
     public void deploymentTransitionToStow() {
-        setTargetDeployState(TargetDeployState.STOW);
+        setTargetDeploymentState(TargetDeploymentState.STOW);
 
-        if (!isHoldingAlgae()) {
+        if (isNotHoldingAlgae()) {
             setTargetCollectorState(TargetCollectorState.DISABLED);
         }
     }
@@ -190,17 +183,17 @@ public class Collector extends SubsystemIF {
     public void deploymentTransitionToCollect() {
         // Sets the target state depending on the collection mode;
         // Is unnecessary due to syncDeploymentControl, but kept for readability.
-        setTargetDeployState(
+        setTargetDeploymentState(
             collectionMode == GamePiece.CORAL ?
-                TargetDeployState.CORAL_COLLECT :
-                TargetDeployState.ALGAE_COLLECT
+                TargetDeploymentState.CORAL_COLLECT :
+                TargetDeploymentState.ALGAE_COLLECT
         );
     }
 
     private void deploymentTransitionToEjecting() {
-        if (targetDeployState != TargetDeployState.STOW) {
+        if (targetDeploymentState != TargetDeploymentState.STOW) {
             // Overrides the control request while retaining the previous target state.
-            setDeploymentControl(TargetDeployState.EJECT);
+            setDeploymentControl(TargetDeploymentState.EJECT);
         }
     }
 
@@ -211,15 +204,15 @@ public class Collector extends SubsystemIF {
     // Checks
 
     public boolean isDeploymentStowed() {
-        return targetDeployState == TargetDeployState.STOW;
+        return targetDeploymentState == TargetDeploymentState.STOW;
     }
 
     public boolean isDeploymentCollecting() {
-        return targetDeployState == TargetDeployState.CORAL_COLLECT || targetDeployState == TargetDeployState.ALGAE_COLLECT;
+        return targetDeploymentState == TargetDeploymentState.CORAL_COLLECT || targetDeploymentState == TargetDeploymentState.ALGAE_COLLECT;
     }
 
-    public boolean isHoldingAlgae() {
-        return targetCollectorState == TargetCollectorState.HOLDING_ALGAE;
+    public boolean isNotHoldingAlgae() {
+        return targetCollectorState != TargetCollectorState.HOLDING_ALGAE;
     }
 
     // -- Collector State Machine --
@@ -229,11 +222,9 @@ public class Collector extends SubsystemIF {
     }
 
     private void collectorStateMachine() {
-        switch (targetCollectorState) {
-            case COLLECTING -> {
-                if (collectorCurrent.getValueAsDouble() > ALGAE_HOLDING_CURRENT_THRESHOLD && collectionMode == GamePiece.ALGAE) {
-                    collectorTransitionToHolding();
-                }
+        if (targetCollectorState == TargetCollectorState.COLLECTING) {
+            if (collectorCurrent.getValueAsDouble() > ALGAE_HOLDING_CURRENT_THRESHOLD && collectionMode == GamePiece.ALGAE) {
+                collectorTransitionToHolding();
             }
         }
     }
@@ -289,12 +280,12 @@ public class Collector extends SubsystemIF {
         return collectorCurrent.getValueAsDouble();
     }
 
-    public double getLeftDeployCurrent() {
-        return leftDeployCurrent.getValueAsDouble();
+    public double getLeftDeploymentCurrent() {
+        return leftDeploymentCurrent.getValueAsDouble();
     }
 
-    public double getRightDeployCurrent() {
-        return rightDeployCurrent.getValueAsDouble();
+    public double getRightDeploymentCurrent() {
+        return rightDeploymentCurrent.getValueAsDouble();
     }
 
     // -- Subsystem Overrides --
@@ -305,7 +296,7 @@ public class Collector extends SubsystemIF {
             .onTrue(
                 CollectorCommands
                     .createZeroCommand(this)
-                    .onlyIf(() -> targetDeployState == TargetDeployState.ZEROED)
+                    .onlyIf(() -> targetDeploymentState == TargetDeploymentState.ZEROED)
             );
 
         return this;
@@ -321,7 +312,7 @@ public class Collector extends SubsystemIF {
 
     @Override
     public void onDisabledInit() {
-        if (targetDeployState != TargetDeployState.ZEROED) {
+        if (targetDeploymentState != TargetDeploymentState.ZEROED) {
             deploymentTransitionToStow();
             collectorTransitionToDisabled();
         }
@@ -333,11 +324,8 @@ public class Collector extends SubsystemIF {
         return collectionMode;
     }
 
-    public GamePiece toggleCollectionMode() {
-        collectionMode = collectionMode == GamePiece.CORAL ? GamePiece.ALGAE : GamePiece.CORAL;
-        syncDeploymentControl();
-
-        return collectionMode;
+    public void toggleCollectionMode() {
+        setCollectionMode(collectionMode == GamePiece.CORAL ? GamePiece.ALGAE : GamePiece.CORAL);
     }
 
     public void setCollectionMode(GamePiece collectionMode) {
@@ -348,7 +336,7 @@ public class Collector extends SubsystemIF {
     // -- Helper Methods --
 
     private boolean checkZeroingGuard() {
-        if (targetDeployState == TargetDeployState.ZEROED) {
+        if (targetDeploymentState == TargetDeploymentState.ZEROED) {
             Logger.error("Attempted to use collector prior to zeroing.");
             return true;
         }

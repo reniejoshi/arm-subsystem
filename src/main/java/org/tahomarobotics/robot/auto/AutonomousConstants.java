@@ -108,8 +108,6 @@ public class AutonomousConstants {
             return side < 5 ? 7 + side : 6;
         }
     }
-
-    public static final String DEFAULT_AUTO_NAME = "No Operation";
-
+    
     public record ReefPole(int index, int aprilTagId, Pose2d approachPose, Pose2d scorePose) {}
 }

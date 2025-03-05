@@ -11,6 +11,7 @@ import org.tinylog.Logger;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+@SuppressWarnings("UnusedReturnValue")
 public class RobustConfigurator {
     /**
      * Number of configuration attempts.
@@ -126,7 +127,7 @@ public class RobustConfigurator {
      *
      * @return The resulting status code
      */
-    public static StatusCode trySetCancoderAngularOffset(String deviceName, CANcoder encoder, double offset) {
+    public static StatusCode trySetCANcoderAngularOffset(String deviceName, CANcoder encoder, double offset) {
         return tryModifyCANcoder(deviceName, encoder, e -> e.MagnetSensor.MagnetOffset = offset);
     }
 

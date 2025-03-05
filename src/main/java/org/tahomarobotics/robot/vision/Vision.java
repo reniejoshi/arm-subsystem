@@ -19,7 +19,8 @@ public class Vision extends SubsystemIF implements AutoCloseable {
 
     // State
 
-    private final Consumer<AprilTagCamera.EstimatedRobotPose> estimationCallback = Chassis.getInstance()::processVisionUpdate;
+    private final Consumer<AprilTagCamera.EstimatedRobotPose> estimationCallback =
+        CameraMountEstimation.stream(Chassis.getInstance()::processVisionUpdate);
 
     // Camera
 
@@ -62,7 +63,7 @@ public class Vision extends SubsystemIF implements AutoCloseable {
 
     // Simulation
 
-    VisionSystemSim visionSim = new VisionSystemSim("main");
+    private final VisionSystemSim visionSim = new VisionSystemSim("main");
 
     @Override
     public void onSimulationInit() {

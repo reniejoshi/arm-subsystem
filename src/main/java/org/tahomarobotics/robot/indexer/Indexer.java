@@ -4,8 +4,6 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.DigitalInput;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -36,8 +34,6 @@ public class Indexer extends SubsystemIF {
 
     // Status Signals
 
-    private final StatusSignal<Angle> position;
-    private final StatusSignal<AngularVelocity> velocity;
     private final StatusSignal<Current> current;
 
     private final LoggedStatusSignal[] statusSignals;
@@ -66,13 +62,11 @@ public class Indexer extends SubsystemIF {
 
         // Bind status signals
 
-        position = motor.getPosition();
-        velocity = motor.getVelocity();
         current = motor.getSupplyCurrent();
 
         statusSignals = new LoggedStatusSignal[]{
-            new LoggedStatusSignal("Position", position),
-            new LoggedStatusSignal("Velocity", velocity),
+            new LoggedStatusSignal("Position", motor.getPosition()),
+            new LoggedStatusSignal("Velocity", motor.getVelocity()),
             new LoggedStatusSignal("Current", current)
         };
 
@@ -115,21 +109,7 @@ public class Indexer extends SubsystemIF {
         setTargetState(IndexerState.EJECTING);
     }
 
-    // Getters
-
-    public IndexerState getState() {
-        return state;
-    }
-
     // -- Getter(s) --
-
-    public double getPosition() {
-        return position.getValueAsDouble();
-    }
-
-    public double getVelocity() {
-        return velocity.getValueAsDouble();
-    }
 
     public double getCurrent() {
         return current.getValueAsDouble();

@@ -30,6 +30,7 @@ import org.tahomarobotics.robot.indexer.IndexerCommands;
 import org.tahomarobotics.robot.util.SubsystemIF;
 import org.tahomarobotics.robot.windmill.Windmill;
 import org.tahomarobotics.robot.windmill.WindmillConstants;
+import org.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -41,28 +42,21 @@ public class Autonomous extends SubsystemIF {
 
     private final Chassis chassis = Chassis.getInstance();
     private final SendableChooser<Command> autoChooser;
-    private String currentAutoName = AutonomousConstants.DEFAULT_AUTO_NAME;
 
     private Autonomous() {
+        // Configure pathplanner
         registerNamedCommands();
 
-//        SendableChooser<Command> prevChooser = (SendableChooser<Command>) SmartDashboard.getData("Auto Chooser");
         autoChooser = PathPlannerHelper.getAutoChooser(chassis, this::onAutoChange);
-//        autoChooser.setDefaultOption(prevChooser.getSelected().getName(), new PathPlannerAuto(prevChooser.getSelected().getName()));
+        SmartDashboard.putData("Auto Chooser", autoChooser);
 
+        // Visualize and reset odometry when alliance color changes
         var inst = NetworkTableInstance.getDefault();
         inst.addListener(
-            inst.getBooleanTopic("/FMSInfo/IsRedAlliance").getEntry(true),
+            inst.getBooleanTopic("/FMSInfo/IsRedAlliance").getEntry(false),
             EnumSet.of(NetworkTableEvent.Kind.kValueAll),
-            e -> {
-                var command = autoChooser.getSelected();
-                if (command != null) { this.onAutoChange(command); } else {
-                    this.onAutoChange(Commands.none().withName(AutonomousConstants.DEFAULT_AUTO_NAME));
-                }
-            }
+            e -> this.onAutoChange(autoChooser.getSelected())
         );
-
-        SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
     public static Autonomous getInstance() {
@@ -71,10 +65,6 @@ public class Autonomous extends SubsystemIF {
 
     public Command getSelectedAuto() {
         return autoChooser.getSelected();
-    }
-
-    public String getSelectedAutoName() {
-        return currentAutoName;
     }
 
     // NAMED COMMANDS
@@ -86,26 +76,36 @@ public class Autonomous extends SubsystemIF {
         Indexer indexer = Indexer.getInstance();
 
         Pair<Command, Command> indexerCommands = IndexerCommands.createIndexerCommands(indexer);
-        NamedCommands.registerCommand("Collector Deploy and Collect", CollectorCommands.createAutoCollectCommand(collector)
-                                                                                       .alongWith(IndexerCommands.createIndexerCommands(indexer).getFirst()));
+        NamedCommands.registerCommand(
+            "Collector Deploy and Collect",
+            CollectorCommands.createAutoCollectCommand(collector)
+                             .alongWith(IndexerCommands.createIndexerCommands(indexer).getFirst())
+        );
         NamedCommands.registerCommand("Indexer Collect", indexerCommands.getFirst());
 
-        NamedCommands.registerCommand("Calibrate Windmill", Commands.runOnce(windmill::calibrate)
-                                                                    .andThen(Commands.waitUntil(windmill::isZeroed))
-                                                                    .andThen(Commands.runOnce(() -> {
-                                                                        windmill.setTargetState(WindmillConstants.TrajectoryState.START);
-                                                                    })));
+        NamedCommands.registerCommand(
+            "Calibrate Windmill",
+            Commands.runOnce(windmill::calibrate)
+                    .andThen(Commands.waitUntil(windmill::isZeroed))
+                    .andThen(Commands.runOnce(() -> windmill.setTargetState(WindmillConstants.TrajectoryState.START)))
+        );
 
         NamedCommands.registerCommand("Zero Collector", CollectorCommands.createZeroCommand(collector));
 
-        NamedCommands.registerCommand("Windmill to Collect", windmill.createTransitionCommand(WindmillConstants.TrajectoryState.COLLECT).andThen(
-            GrabberCommands.createGrabberCommands(grabber).getFirst()));
+        NamedCommands.registerCommand(
+            "Windmill to Collect", windmill.createTransitionCommand(WindmillConstants.TrajectoryState.COLLECT).andThen(
+                GrabberCommands.createGrabberCommands(grabber).getFirst())
+        );
         NamedCommands.registerCommand("Wait for Windmill Collected", Commands.waitUntil(grabber::isHolding));
 
         Pair<Command, Command> grabberScoringCommands = GrabberCommands.createGrabberScoringCommands(grabber);
-        NamedCommands.registerCommand("Grabber Score", grabberScoringCommands.getFirst()
-                                                                             .andThen(Commands.waitSeconds(0.25))
-                                                                             .andThen(grabberScoringCommands.getSecond()));
+        NamedCommands.registerCommand(
+            "Grabber Score",
+            grabberScoringCommands
+                .getFirst()
+                .andThen(Commands.waitSeconds(0.25))
+                .andThen(grabberScoringCommands.getSecond())
+        );
 
         NamedCommands.registerCommand("Windmill to L4", windmill.createTransitionCommand(WindmillConstants.TrajectoryState.L4));
         NamedCommands.registerCommand("Windmill to L3", windmill.createTransitionCommand(WindmillConstants.TrajectoryState.L3));
@@ -148,23 +148,17 @@ public class Autonomous extends SubsystemIF {
                     trajectory
                         .getStates().stream().map
                             (state -> new Trajectory.State(
-                                state.timeSeconds,
-                                state.linearVelocity,
-                                0,
-                                state.pose, // This will be slightly inaccurate.
-                                0)
+                                 state.timeSeconds,
+                                 state.linearVelocity,
+                                 0,
+                                 state.pose, // This will be slightly inaccurate.
+                                 0
+                             )
                             )
             ).toList());
     }
 
     private void postAutoTrajectory(Field2d field, String autoName) {
-        if (autoName == null || autoName.equals(AutonomousConstants.DEFAULT_AUTO_NAME)) {
-            chassis.resetOdometry(new Pose2d());
-            field.getObject("Trajectory").setTrajectory(new Trajectory());
-            return;
-        }
-
-
         try {
             List<PathPlannerPath> autoPaths = PathPlannerAuto.getPathGroupFromAutoFile(autoName);
             if (!autoPaths.isEmpty()) {
@@ -174,22 +168,14 @@ public class Autonomous extends SubsystemIF {
             }
             field.getObject("Trajectory").setTrajectory(convertToTrajectoryForDisplay(autoPaths));
         } catch (Exception e) {
-            System.out.println("Error loading auto path: " + autoName);
+            Logger.error("Error loading auto path: {}", autoName);
+
+            chassis.resetOdometry(new Pose2d());
+            field.getObject("Trajectory").setTrajectory(new Trajectory());
         }
     }
 
     private void onAutoChange(Command auto) {
-        new InstantCommand(() ->
-                               postAutoTrajectory(chassis.getField(), auto.getName())).schedule();
-    }
-
-    @Override
-    public double getEnergyUsed() {
-        return 0;
-    }
-
-    @Override
-    public double getTotalCurrent() {
-        return 0;
+        new InstantCommand(() -> postAutoTrajectory(chassis.getField(), auto.getName())).schedule();
     }
 }

@@ -11,13 +11,13 @@ import org.tahomarobotics.robot.util.identity.Identity;
 public class CollectorConstants {
     // Gearing
 
-    private static final double DEPLOY_REDUCTION = (9d / 84d) * (12d / 36d);
+    private static final double DEPLOYMENT_REDUCTION = (9d / 84d) * (12d / 36d);
 
     // Motion Magic Constraints
 
-    private static final double DEPLOY_MAX_VELOCITY = 3;
-    private static final double DEPLOY_MAX_ACCELERATION = DEPLOY_MAX_VELOCITY * 4;
-    private static final double DEPLOY_MAX_JERK = DEPLOY_MAX_ACCELERATION * 4;
+    private static final double DEPLOYMENT_MAX_VELOCITY = 3;
+    private static final double DEPLOYMENT_MAX_ACCELERATION = DEPLOYMENT_MAX_VELOCITY * 4;
+    private static final double DEPLOYMENT_MAX_JERK = DEPLOYMENT_MAX_ACCELERATION * 4;
 
     private static final double COLLECTOR_MAX_VELOCITY = 50.0;
     private static final double COLLECTOR_MAX_ACCELERATION = COLLECTOR_MAX_VELOCITY * 4;
@@ -29,13 +29,13 @@ public class CollectorConstants {
 
     // Zeroing
 
-    public static final double DEPLOY_ZERO_POSITION;
+    public static final double DEPLOYMENT_ZERO_POSITION;
 
-    public static final double DEPLOY_ZEROING_TIMEOUT = 5;
-    public static final double DEPLOY_ZEROING_VOLTAGE = 1;
+    public static final double DEPLOYMENT_ZEROING_TIMEOUT = 5;
+    public static final double DEPLOYMENT_ZEROING_VOLTAGE = 1;
 
-    public static final double DEPLOY_AT_POSITION_THRESHOLD = 0.005;
-    public static final double DEPLOY_MOVING_VELOCITY_THRESHOLD = 0.001;
+    public static final double DEPLOYMENT_AT_POSITION_THRESHOLD = 0.005;
+    public static final double DEPLOYMENT_MOVING_VELOCITY_THRESHOLD = 0.001;
 
     // States
 
@@ -46,8 +46,8 @@ public class CollectorConstants {
 
     static {
         switch (Identity.robotID) {
-            case BEEF, BEARRACUDA -> DEPLOY_ZERO_POSITION = 103.75;
-            default -> DEPLOY_ZERO_POSITION = 83.75;
+            case BEEF, BEARRACUDA -> DEPLOYMENT_ZERO_POSITION = 103.75;
+            default -> DEPLOYMENT_ZERO_POSITION = 83.75;
         }
     }
 
@@ -83,17 +83,17 @@ public class CollectorConstants {
      * - Zero: 19.6deg from horizontal (CoG inline with pivot) <p>
      * - Range of Motion: (~83, ~-21deg) from horizontal <p>
      */
-    public enum TargetDeployState {
-        ZEROED(Units.degreesToRotations(DEPLOY_ZERO_POSITION)),
+    public enum TargetDeploymentState {
+        ZEROED(Units.degreesToRotations(DEPLOYMENT_ZERO_POSITION)),
         STOW(Units.degreesToRotations(75)),
         CORAL_COLLECT(Units.degreesToRotations(-20.75)),
         ALGAE_COLLECT(Units.degreesToRotations(0)),
         EJECT(Units.degreesToRotations(-20.75));
 
-        /** Angle of the deploy motors in rotations for this state. */
+        /** Angle of the deployment motors in rotations for this state. */
         public final double angle;
 
-        TargetDeployState(double angle) {
+        TargetDeploymentState(double angle) {
             this.angle = angle;
         }
     }
@@ -102,19 +102,19 @@ public class CollectorConstants {
 
     // TODO: Add current limits that are higher than operating currents to not cook motors at edge cases (collisions, etc.).
 
-    public static final TalonFXConfiguration deployLeftMotorConfiguration = new TalonFXConfiguration()
+    public static final TalonFXConfiguration deploymentLeftMotorConfiguration = new TalonFXConfiguration()
         .withMotorOutput(
             new MotorOutputConfigs()
                 .withInverted(InvertedValue.CounterClockwise_Positive)
                 .withNeutralMode(NeutralModeValue.Brake)
         ).withFeedback(
             new FeedbackConfigs()
-                .withSensorToMechanismRatio(1 / DEPLOY_REDUCTION)
+                .withSensorToMechanismRatio(1 / DEPLOYMENT_REDUCTION)
         ).withMotionMagic(
             new MotionMagicConfigs()
-                .withMotionMagicCruiseVelocity(DEPLOY_MAX_VELOCITY)
-                .withMotionMagicAcceleration(DEPLOY_MAX_ACCELERATION)
-                .withMotionMagicJerk(DEPLOY_MAX_JERK)
+                .withMotionMagicCruiseVelocity(DEPLOYMENT_MAX_VELOCITY)
+                .withMotionMagicAcceleration(DEPLOYMENT_MAX_ACCELERATION)
+                .withMotionMagicJerk(DEPLOYMENT_MAX_JERK)
         ).withSlot0(
             new Slot0Configs()
                 .withGravityType(GravityTypeValue.Arm_Cosine)
@@ -124,7 +124,7 @@ public class CollectorConstants {
             new AudioConfigs().withBeepOnBoot(true).withBeepOnConfig(true)
         );
 
-    public static final MotorOutputConfigs deployRightMotorOutputConfiguration = new MotorOutputConfigs()
+    public static final MotorOutputConfigs deploymentRightMotorOutputConfiguration = new MotorOutputConfigs()
         .withNeutralMode(NeutralModeValue.Brake)
         .withInverted(InvertedValue.Clockwise_Positive);
 

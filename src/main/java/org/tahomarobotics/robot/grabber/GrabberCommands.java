@@ -11,13 +11,6 @@ public class GrabberCommands {
         return Pair.of(onTrue, onFalse);
     }
 
-    public static Pair<Command, Command> createGrabberEjectingCommands(Grabber grabber) {
-        Command onTrue = grabber.runOnce(grabber::transitionToEjecting);
-        Command onFalse = grabber.runOnce(grabber::transitionToDisabled);
-
-        return Pair.of(onTrue, onFalse);
-    }
-
     public static Pair<Command, Command> createGrabberScoringCommands(Grabber grabber) {
         Command onTrue = grabber.runOnce(grabber::transitionToScoring);
         Command onFalse = grabber.runOnce(grabber::transitionToDisabled).onlyIf(() -> !grabber.collectionTimer.isRunning());

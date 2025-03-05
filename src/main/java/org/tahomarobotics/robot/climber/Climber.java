@@ -9,7 +9,6 @@ import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -48,9 +47,6 @@ public class Climber extends SubsystemIF {
     private final StatusSignal<Current> climberMotorCurrent;
     private final StatusSignal<Current> climberFollowerCurrent;
     private final StatusSignal<Angle> climberMotorPosition;
-    private final StatusSignal<Angle> climberFollowerPosition;
-    private final StatusSignal<Voltage> climberMotorVoltage;
-    private final StatusSignal<Voltage> climberFollowerVoltage;
 
     // Control Requests
 
@@ -74,17 +70,14 @@ public class Climber extends SubsystemIF {
         climberMotorCurrent = climberMotor.getSupplyCurrent();
         climberFollowerCurrent = climberFollower.getSupplyCurrent();
         climberMotorPosition = climberMotor.getPosition();
-        climberFollowerPosition = climberFollower.getPosition();
-        climberMotorVoltage = climberMotor.getMotorVoltage();
-        climberFollowerVoltage = climberFollower.getMotorVoltage();
 
         statusSignals = new LoggedStatusSignal[]{
             new LoggedStatusSignal("Climber Motor Position", climberMotorPosition),
-            new LoggedStatusSignal("Climber Follower Position", climberFollowerPosition),
+            new LoggedStatusSignal("Climber Follower Position", climberFollower.getPosition()),
             new LoggedStatusSignal("Climber Motor Current", climberMotorCurrent),
             new LoggedStatusSignal("Climber Follower Current", climberFollowerCurrent),
-            new LoggedStatusSignal("Climber Motor Voltage", climberMotorVoltage),
-            new LoggedStatusSignal("Climber Follower Voltage", climberFollowerVoltage)
+            new LoggedStatusSignal("Climber Motor Voltage", climberMotor.getMotorVoltage()),
+            new LoggedStatusSignal("Climber Follower Voltage", climberFollower.getMotorVoltage())
         };
 
         LoggedStatusSignal.setUpdateFrequencyForAll(statusSignals, RobotConfiguration.MECHANISM_UPDATE_FREQUENCY);
@@ -112,11 +105,6 @@ public class Climber extends SubsystemIF {
     }
 
     // -- Getters --
-
-    @Override
-    public double getTotalCurrent() {
-        return climberMotorCurrent.getValueAsDouble() + climberFollowerCurrent.getValueAsDouble();
-    }
 
     public ClimberState getClimbState() {
         return climbState;

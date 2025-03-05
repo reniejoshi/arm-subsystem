@@ -167,13 +167,5 @@ public class WindmillTrajectory {
         return fromTo.getFirst() + "_TO_" + fromTo.getSecond();
     }
 
-    public static class Orientation {
-        public double time;
-        public Boolean isUp;
-
-        public Orientation(double time, Boolean isUp) {
-            this.time = time;
-            this.isUp = isUp;
-        }
-    }
+    public record Orientation(double time, Boolean isUp) {}
 }

@@ -57,17 +57,6 @@ public record WindmillState(
         return new WindmillState(timeSeconds, elevatorState, armState);
     }
 
-    public boolean isAchievable() {
-        return !(
-            Math.abs(
-                Units.radiansToRotations(armState.velocityRadiansPerSecond)) > WindmillConstants.ARM_MAX_VELOCITY ||
-            Math.abs(Units.radiansToRotations(
-                armState.accelerationRadiansPerSecondSquared)) > WindmillConstants.ARM_MAX_ACCELERATION ||
-            Math.abs(elevatorState.velocityMetersPerSecond) > WindmillConstants.ELEVATOR_MAX_VELOCITY ||
-            Math.abs(elevatorState.accelerationMetersPerSecondSquared) > WindmillConstants.ELEVATOR_MAX_ACCELERATION
-        );
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof WindmillState other) {

@@ -44,13 +44,6 @@ public class WindmillMoveCommand extends Command {
 
     @Override
     public void initialize() {
-        // TODO: add this back in if we change trajectories to collector side
-//        if (!Collector.getInstance().isDeploymentCollecting()) {
-//            Logger.error("Cannot run trajectory with collector down!");
-//            cancel();
-//            return;
-//        }
-
         if (!windmill.isAtTargetTrajectoryState()) {
             Logger.error(
                 "Windmill was not within tolerance for starting state! Arm was at ({}, {}) but needs to be at ({}, {})", windmill.getWindmillPositionX(),
@@ -100,12 +93,6 @@ public class WindmillMoveCommand extends Command {
     }
 
     // -- Helpers --
-
-    public static Optional<Command> beef() {
-        return Optional.empty();
-        // TODO
-//        return WindmillTrajectories.getEditorTrajectory().map(t -> new WindmillMoveCommand(Pair.of(TrajectoryState.IDK, TrajectoryState.IDK), t));
-    }
 
     public static Optional<Command> fromTo(TrajectoryState from, TrajectoryState to) {
         return WindmillTrajectories.getTrajectory(from, to).map(t -> new WindmillMoveCommand(Pair.of(from, to), t));

@@ -84,8 +84,6 @@ public class Chassis extends SubsystemIF {
 
     private final SwerveDriveLimiter accelerationLimiter;
 
-    private final Thread odometryThread;
-
     // Simulation
 
     // -- Initialization --
@@ -120,8 +118,7 @@ public class Chassis extends SubsystemIF {
 
         accelerationLimiter = new SwerveDriveLimiter(getSwerveModuleStates());
 
-        odometryThread = new Thread(this::odometryThread);
-        odometryThread.start();
+        new Thread(this::odometryThread).start();
     }
 
     public static Chassis getInstance() {
@@ -279,10 +276,6 @@ public class Chassis extends SubsystemIF {
 
     public void incrementAutoAligningOffset(double increment) {
         setAutoAligningOffset(autoAligningOffset + increment);
-    }
-
-    public double getAutoAligningOffset() {
-        return autoAligningOffset;
     }
 
     // -- Odometry --

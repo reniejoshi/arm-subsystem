@@ -192,6 +192,7 @@ public class OI extends SubsystemIF {
             "Set Arm Collecting", Commands.runOnce(() -> windmill.setArmPosition(WindmillConstants.ARM_COLLECT_POSE)));
     }
 
+    @SuppressWarnings("SuspiciousNameCombination")
     public void setDefaultCommands() {
         chassis.setDefaultCommand(ChassisCommands.createTeleOpDriveCommand(
             chassis,

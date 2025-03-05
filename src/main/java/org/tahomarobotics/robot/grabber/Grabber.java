@@ -5,7 +5,6 @@ import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -37,7 +36,6 @@ public class Grabber extends SubsystemIF {
 
     // Status Signals
 
-    private final StatusSignal<AngularVelocity> grabberVelocity;
     private final StatusSignal<Current> current;
 
     private final LoggedStatusSignal[] statusSignals;
@@ -68,11 +66,10 @@ public class Grabber extends SubsystemIF {
 
         // Bind status signals
 
-        grabberVelocity = motor.getVelocity();
         current = motor.getSupplyCurrent();
 
         statusSignals = new LoggedStatusSignal[]{
-            new LoggedStatusSignal("Grabber Velocity", grabberVelocity),
+            new LoggedStatusSignal("Grabber Velocity", motor.getVelocity()),
             new LoggedStatusSignal("Grabber Current", current)
         };
 
@@ -134,10 +131,6 @@ public class Grabber extends SubsystemIF {
         setTargetState(GrabberState.COLLECTING);
     }
 
-    public void transitionToEjecting() {
-        setTargetState(GrabberState.EJECTING);
-    }
-
     public void transitionToScoring() {
         setTargetState(GrabberState.SCORING);
     }
@@ -148,20 +141,8 @@ public class Grabber extends SubsystemIF {
         return SmartDashboard.getBoolean("arm at position", true);
     }
 
-    public boolean isDisabled() {
-        return state == GrabberState.DISABLED;
-    }
-
     public boolean isHolding() {
         return state == GrabberState.HOLDING;
-    }
-
-    public boolean isCollecting() {
-        return state == GrabberState.COLLECTING;
-    }
-
-    public boolean isEjecting() {
-        return state == GrabberState.EJECTING;
     }
 
     public double getCurrent() {

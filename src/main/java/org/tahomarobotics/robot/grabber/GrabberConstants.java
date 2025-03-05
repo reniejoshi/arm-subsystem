@@ -7,7 +7,7 @@ import org.tahomarobotics.robot.util.identity.Identity;
 
 public class GrabberConstants {
     public static final double COLLECT_VELOCITY = -10;
-    public static final double EJECT_VELOCITY = 15;
+    public static final double SCORING_VELOCITY = 15;
     public static final double HOLD_VOLTAGE = -0.25;
 
     public static final double COLLECTION_DELAY = 0.35;
@@ -29,8 +29,7 @@ public class GrabberConstants {
         DISABLED(MotionType.NONE, 0),
         HOLDING(MotionType.VOLTAGE, HOLD_VOLTAGE),
         COLLECTING(MotionType.VELOCITY, COLLECT_VELOCITY),
-        EJECTING(MotionType.VELOCITY, EJECT_VELOCITY),
-        SCORING(MotionType.VELOCITY, EJECT_VELOCITY);
+        SCORING(MotionType.VELOCITY, SCORING_VELOCITY);
 
         public final MotionType type;
         public final double value;
