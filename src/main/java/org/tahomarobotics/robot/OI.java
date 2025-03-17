@@ -28,12 +28,14 @@ import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.tahomarobotics.robot.auto.AutonomousConstants;
 import org.tahomarobotics.robot.auto.commands.DriveToPoseV4Command;
 import org.tahomarobotics.robot.chassis.Chassis;
@@ -88,6 +90,12 @@ public class OI extends SubsystemIF {
 
     private final CommandXboxController controller = new CommandXboxController(0);
     private final CommandXboxController lessImportantController = new CommandXboxController(1);
+
+    // -- State --
+
+    private final Timer l4Timer = new Timer();
+    @AutoLogOutput(key = "/Autonomous/Moving to L4 on Align?")
+    private boolean moveToL4OnAutoAlign = false;
 
     // -- Initialization --
 
@@ -155,8 +163,15 @@ public class OI extends SubsystemIF {
                         );
                     DriveToPoseV4Command dtp = pole.driveToPoseV4Command();
 
+                    Command windmillMovement = !moveToL4OnAutoAlign ?
+                        Commands.none() :
+                        windmill.createTransitionCommand(WindmillConstants.TrajectoryState.L4)
+                                .andThen(Commands.runOnce(led::coral))
+                                .andThen(Commands.runOnce(() -> moveToL4OnAutoAlign = false));
+
                     return Commands.parallel(
                         dtp.andThen(Commands.waitSeconds(0.75)).finallyDo(grabber::transitionToDisabled),
+                        dtp.runWhen(() -> dtp.getTargetWaypoint() == 0 && dtp.getDistanceToWaypoint() <= ARM_UP_DISTANCE, windmillMovement),
                         dtp.runWhen(
                             () -> dtp.getTargetWaypoint() == 1 && dtp.getDistanceToWaypoint() < AutonomousConstants.AUTO_SCORE_DISTANCE,
                             grabber.runOnce(grabber::transitionToScoring)
@@ -241,7 +256,24 @@ public class OI extends SubsystemIF {
         ));
 
         // Y - L4
-        controller.y().onTrue(windmill.createTransitionCommand(WindmillConstants.TrajectoryState.L4));
+        controller.y().onTrue(windmill.createTransitionCommand(WindmillConstants.TrajectoryState.STOW)
+              .onlyIf(() -> windmill.getTargetTrajectoryState() == WindmillConstants.TrajectoryState.COLLECT)
+              .andThen(Commands.deferredProxy(() -> {
+                  if (!l4Timer.isRunning() || l4Timer.hasElapsed(DOUBLE_PRESS_TIMEOUT)) {
+                      // We are already at the target state, so return to collect.
+                      if (windmill.getTargetTrajectoryState() == WindmillConstants.TrajectoryState.L4) {
+                          return windmill.createTransitionCommand(WindmillConstants.TrajectoryState.COLLECT);
+                      } else {
+                          return Commands.runOnce(() -> {
+                              l4Timer.restart(); // Reset the double press timer
+                              toggleL4OnAutoAlign();
+                          });
+                      }
+                  } else {
+                      return windmill.createTransitionCommand(WindmillConstants.TrajectoryState.L4).andThen(Commands.runOnce(this::toggleL4OnAutoAlign));
+                  }
+              }
+        )));
     }
 
     public void configureLessImportantControllerBindings() {
@@ -270,6 +302,18 @@ public class OI extends SubsystemIF {
                     .andThen(Commands.waitUntil(windmill::isArmAtPosition))
                     .andThen(Commands.runOnce(() -> windmill.setElevatorHeight(WindmillConstants.ELEVATOR_MIN_POSE)))
         );
+    }
+
+    // -- Helper Methods --
+
+    public void toggleL4OnAutoAlign() {
+        if (moveToL4OnAutoAlign) {
+            led.l4();
+        } else {
+            led.sync();
+        }
+
+        moveToL4OnAutoAlign = !moveToL4OnAutoAlign;
     }
 
     @SuppressWarnings("SuspiciousNameCombination")
