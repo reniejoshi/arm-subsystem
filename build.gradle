@@ -2,7 +2,7 @@ import groovy.json.JsonSlurper
 
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2025.3.1"
+    id "edu.wpi.first.GradleRIO" version "2025.3.2"
 }
 
 java {
