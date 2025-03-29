@@ -164,7 +164,7 @@ public class ChassisConstants {
                     FeedbackRemoteSensorID = encoderId;
 
                     if (RobotConfiguration.CANIVORE_PHOENIX_PRO) {
-                        FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+                        FeedbackSensorSource = FeedbackSensorSourceValue.SyncCANcoder;
                         RotorToSensorRatio = 1 / steerReduction;
                     } else {
                         FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
