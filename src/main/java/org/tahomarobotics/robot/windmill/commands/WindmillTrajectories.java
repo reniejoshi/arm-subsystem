@@ -112,12 +112,22 @@ public class WindmillTrajectories {
         create(TrajectoryState.L4, LARGE_PULLBACK, TrajectoryState.L2);
         create(TrajectoryState.L4, LARGE_PULLBACK, TrajectoryState.L3);
 
+        create(TrajectoryState.L1, TrajectoryState.L2);
+        create(TrajectoryState.L1, TrajectoryState.L3);
+        create(TrajectoryState.L1, TrajectoryState.L4);
+
+        create(TrajectoryState.L2, TrajectoryState.L1);
+        create(TrajectoryState.L3, TrajectoryState.L1);
+        create(TrajectoryState.L4, TrajectoryState.L1);
+
         create(TrajectoryState.START, TrajectoryState.L4);
 
+        create(TrajectoryState.STOW, TrajectoryState.L1);
         create(TrajectoryState.STOW, TrajectoryState.L2);
         create(TrajectoryState.STOW, TrajectoryState.L3);
         create(TrajectoryState.STOW, TrajectoryState.L4);
 
+        create(TrajectoryState.L1, TrajectoryState.STOW);
         create(TrajectoryState.L2, TrajectoryState.STOW);
         create(TrajectoryState.L3, TrajectoryState.STOW);
         create(TrajectoryState.L4, TrajectoryState.STOW);

@@ -273,16 +273,13 @@ public class OI extends SubsystemIF {
         ));
 
         // X - L1 / Algae Processor
-        controller.x().onTrue(Commands.defer(() -> {
-                    if (collector.getCollectionMode() == GamePiece.CORAL) {
-                        return windmill.createTransitionToggleCommand(WindmillConstants.TrajectoryState.CORAL_COLLECT, WindmillConstants.TrajectoryState.L1);
-                    } else {
-                        return Commands.runOnce(() -> collector.deploymentForceStateTransition(CollectorConstants.TargetDeploymentState.CORAL_COLLECT))
-                                       .andThen(WindmillCommands.createToggleProcessorCommand(windmill));
-                    }
-                },
-            Set.of(windmill))
-        );
+        controller.x().onTrue(Commands.defer(
+            () -> collector.getCollectionMode() == GamePiece.CORAL ?
+                windmill.createTransitionCommand(WindmillConstants.TrajectoryState.L1) :
+                Commands.runOnce(() -> collector.deploymentForceStateTransition(CollectorConstants.TargetDeploymentState.CORAL_COLLECT))
+                    .andThen(WindmillCommands.createToggleProcessorCommand(windmill)),
+            Set.of(windmill)
+        ));
 
         // Y - L4
         controller.y().onTrue(Commands.deferredProxy(
