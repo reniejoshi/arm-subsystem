@@ -370,7 +370,7 @@ public class Windmill extends SubsystemIF {
     @AutoLogOutput(key = "Windmill/Is at Target Trajectory State?")
     public boolean isAtTargetTrajectoryState() {
         return (Math.abs(getElevatorHeight() - targetTrajectoryState.elev) < ELEVATOR_POSITION_TOLERANCE) &&
-               (Math.abs(getArmPosition() - targetTrajectoryState.arm) < ARM_POSITION_TOLERANCE);
+               (Math.abs(MathUtil.angleModulus(getArmPosition() - targetTrajectoryState.arm)) < ARM_POSITION_TOLERANCE);
 
     }
 

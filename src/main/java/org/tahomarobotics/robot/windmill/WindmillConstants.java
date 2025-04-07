@@ -40,14 +40,14 @@ public final class WindmillConstants {
                      Units.inchesToMeters(15.257), Units.degreesToRadians(127.820)),  // ALGAE: B button
         LOW_DESCORE(0.254, Units.degreesToRadians(133.945),
                     Units.inchesToMeters(0.815), Units.degreesToRadians(127.742)),  // ALGAE: A button
-        CORAL_COLLECT(0.430, Units.degreesToRadians(268),
-                      Units.inchesToMeters(17.069), Units.degreesToRadians(267.809)),  // CORAL: RS button toggle
+        CORAL_COLLECT(0.430, Units.degreesToRadians(-92.000),
+                      Units.inchesToMeters(17.069), Units.degreesToRadians(-92.191)),  // CORAL: RS button toggle
         STOW(Units.inchesToMeters(1.901), Units.degreesToRadians(89.913),
              Units.inchesToMeters(1.901), Units.degreesToRadians(89.913)),  // RS button toggle
         ALGAE_COLLECT(0.0214, Units.degreesToRadians(177.211),
                       0.0214, Units.degreesToRadians(177.211)),  // ALGAE: RS button toggle
-        ALGAE_PASSOFF(Units.inchesToMeters(42.344), Units.degreesToRadians(287.809),
-                      Units.inchesToMeters(42.344), Units.degreesToRadians(287.809)),
+        ALGAE_PASSOFF(Units.inchesToMeters(42.344), Units.degreesToRadians(-72.191),
+                      Units.inchesToMeters(42.344), Units.degreesToRadians(-72.191)),
         ALGAE_PROCESSOR(0.567, Units.degreesToRadians(-61.566),
                         0.567, Units.degreesToRadians(-61.566)),  // ALGAE: X button
         ALGAE_PRESCORE(Units.inchesToMeters(47.244), Units.degreesToRadians(0),
@@ -60,8 +60,8 @@ public final class WindmillConstants {
            Units.inchesToMeters(17.500), Units.degreesToRadians(124.398)),  // CORAL: B button
         L2(0.07375, Units.degreesToRadians(122.539),
            Units.inchesToMeters(1.364), Units.degreesToRadians(124.791)),  // CORAL: A button
-        L1(0.572, Units.degreesToRadians(238.535),
-           0.572, Units.degreesToRadians(238.535)),  // CORAL: X button
+        L1(0.572, Units.degreesToRadians(-121.465),
+           0.572, Units.degreesToRadians(-121.465)),  // CORAL: X button
         START(Units.inchesToMeters(0.468), Units.degreesToRadians(90.089),
               Units.inchesToMeters(0.468), Units.degreesToRadians(90.089));  // startup only
 
@@ -88,10 +88,15 @@ public final class WindmillConstants {
         }
     }
 
+    // obstruction thresholds
+    public static final double ROBOT_DECK = Units.inchesToMeters(-9.0);
+    public static final double ROBOT_COLLECTOR_X = Units.inchesToMeters(0.0);
+    public static final double ROBOT_COLLECTOR_Y = Units.inchesToMeters(-0.5);
+
     public static final double SMALL_PULLBACK = Units.degreesToRadians(10.0);
     public static final double STANDARD_PULLBACK = Units.degreesToRadians(20.0);
     public static final double LARGE_PULLBACK = Units.degreesToRadians(30.0);
-    public static final double EXTRA_LARGE_PULLBACK = Units.degreesToRadians(40.0);
+    public static final double ALGAE_PULLBACK = Units.degreesToRadians(25.0);
 
     // Gearing
     public static final double ELEVATOR_GEAR_REDUCTION;
@@ -115,7 +120,7 @@ public final class WindmillConstants {
 
     public static final double ELEVATOR_MAX_VELOCITY = 2.0; // Meters / sec
     public static final double ELEVATOR_MAX_ACCELERATION = 15.0; // Meters / sec^2
-    public static final double ELEVATOR_MAX_JERK = 416.5; // Meters / sec^3
+    public static final double ELEVATOR_MAX_JERK = 200; // Meters / sec^3
 
     // -- Arm --
 
@@ -133,15 +138,15 @@ public final class WindmillConstants {
     public static final double ARM_VELOCITY_TOLERANCE = Units.rotationsToRadians(0.01); // Radians / sec
 
     // Motion
-
     public static final double ARM_MAX_VELOCITY = 1.75 * Math.PI; // Radians / sec
     public static final double ARM_MAX_ACCELERATION = 15.0 * Math.PI; // Radians / sec^2
-    public static final double ARM_MAX_JERK = 416.5 * Math.PI;  // Radians / sec^3
+    public static final double ARM_MAX_JERK = 200 * Math.PI;  // Radians / sec^3
 
-    public static final double ARM_ALGAE_ACCELERATION_REDUCTION = ARM_MAX_ACCELERATION / 1.4;
-    public static final double ARM_ALGAE_THROW_ACCELERATION_REDUCTION = ARM_MAX_ACCELERATION / 3.25;
+    public static final double ARM_ALGAE_MAX_VELOCITY = ARM_MAX_VELOCITY * 0.3;
+    public static final double ARM_ALGAE_MAX_ACCELERATION = ARM_MAX_ACCELERATION * 0.3;
+
     public static final double ARM_ALGAE_THROW_VELOCITY = 1.5 * Math.PI;
-
+    public static final double ARM_ALGAE_THROW_ACCELERATION = 1.0 * Math.PI;
     // Constants
 
     public static final double ARM_LENGTH = 0.6540246; // Meters
@@ -230,7 +235,7 @@ public final class WindmillConstants {
                 .withMotionMagicJerk(Units.radiansToRotations(ARM_MAX_JERK))
         ).withClosedLoopGeneral(
             new ClosedLoopGeneralConfigs()
-                .withContinuousWrap(false)
+                .withContinuousWrap(true)
         ).withFeedback(new FeedbackConfigs()
                            .withSensorToMechanismRatio(1 / ARM_BELT_REDUCTION)
                            .withRotorToSensorRatio(1 / ARM_ROTOR_TO_ENCODER)

@@ -21,35 +21,27 @@
  */
 package org.tahomarobotics.robot.util.motion;
 
+import edu.wpi.first.math.MathUtil;
+
 public class TrapezoidalMotionProfile extends MotionProfile {
 
 	public TrapezoidalMotionProfile(double startTime, double startPosition, double endPosition, double startVelocity, double endVelocity, double maxVelocity, double maxAcceleration) throws MotionProfileException {
-		super(startTime, startPosition, endPosition, startVelocity, endVelocity, maxVelocity, maxAcceleration, 0);
+		super(startTime, startPosition, endPosition, startVelocity, endVelocity, maxVelocity, maxAcceleration, 0, false, false);
+	}
+	public TrapezoidalMotionProfile(double startTime, double startPosition, double endPosition, double startVelocity, double endVelocity, double maxVelocity, double maxAcceleration, boolean rotational, boolean reverse) throws MotionProfileException {
+		super(startTime, startPosition, endPosition, startVelocity, endVelocity, maxVelocity, maxAcceleration, 0, rotational, reverse);
 	}
 
 	@Override
-	public MotionProfile updateEndTime(double endTime) throws MotionProfileException {
-
-		// close enough
-		if (Math.abs(endTime - getEndTime()) < 1E-06 ||
-			Math.abs(endTime - startTime) < 1E-06 ||
-			Math.abs(getEndTime() - startTime) < 1E-06)
-			return this;
-
-		double scale = (getEndTime() - startTime) / (endTime - startTime);
-
-
-		return new TrapezoidalMotionProfile(this.startTime, this.startPosition, this.endPosition,
-											this.startVelocity, this.endVelocity * scale,
-											this.maxVelocity * scale, this.maxAcceleration * scale * scale);
-
-	}
-
-	@Override
-	protected MotionState[] generatePhases() {
+	protected MotionState[] generatePhases() throws MotionProfileException {
 
 		// all velocity and acceleration will be corrected for sign
-		final double distance = endPosition - startPosition;
+		double dist = endPosition - startPosition;
+
+		double opp_dist = (Math.abs(dist) - Math.PI*2d) * Math.signum(dist);
+		double rotationalDistance = (Math.abs(dist) < Math.abs(opp_dist)) ^ reverse ? dist : opp_dist;
+
+		final double distance = rotational ? rotationalDistance : dist;
 		final double abs_distance = Math.abs(distance);
 		final double direction = Math.signum(distance);
 
@@ -57,25 +49,30 @@ public class TrapezoidalMotionProfile extends MotionProfile {
 		double end_velocity = Math.abs(endVelocity);
 
 		double max_velocity = Math.min(
-				maxVelocity,
-				Math.sqrt(abs_distance*maxAcceleration + startVelocity * startVelocity / 2 	+ endVelocity * endVelocity / 2));
+			maxVelocity,
+			Math.sqrt(abs_distance * maxAcceleration + startVelocity * startVelocity / 2 + endVelocity * endVelocity / 2)
+		);
 
 
 		if (end_velocity > max_velocity) {
-			max_velocity = Math.sqrt(abs_distance*maxAcceleration*2 + start_velocity * start_velocity);
+			max_velocity = Math.sqrt(abs_distance * maxAcceleration * 2 + start_velocity * start_velocity);
 			end_velocity = max_velocity;
 		}
 
 		final double ta = Math.max(0, (max_velocity - start_velocity) / (maxAcceleration + 1.0e-6));
 		final double td = Math.max(0, (max_velocity - end_velocity) / (maxAcceleration + 1.0e-6));
-		final double tv = Math.max(0, abs_distance > 0 ? ((abs_distance - 0.5*ta*(max_velocity + start_velocity) - 0.5*td*(max_velocity + end_velocity)) / max_velocity) : 0);
+		double distAccel = start_velocity * ta + 0.5 * maxAcceleration * ta * ta;
+		double distDecel = max_velocity * td - 0.5 * maxAcceleration * td * td;
+		final double tv = (abs_distance - distAccel - distDecel) / (max_velocity + 1e-6);
+		if (tv < 0) {
+			throw new MotionProfileException("distance is too short for the deceleration");
+		}
 
-		
 		double max_acceleration = direction * maxAcceleration;
 		max_velocity *= direction;
 		start_velocity *= direction;
 		end_velocity *= direction;
-		
+
 		MotionState[] phases = new MotionState[4];
 
 		// initial state

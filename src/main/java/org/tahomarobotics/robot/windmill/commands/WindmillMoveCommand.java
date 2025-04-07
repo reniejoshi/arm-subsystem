@@ -27,6 +27,8 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import org.tahomarobotics.robot.util.motion.MotionProfile;
+import org.tahomarobotics.robot.util.motion.MotionState;
 import org.tahomarobotics.robot.windmill.Dynamics;
 import org.tahomarobotics.robot.windmill.Windmill;
 import org.tahomarobotics.robot.windmill.WindmillConstants.TrajectoryState;
@@ -59,6 +61,7 @@ public class WindmillMoveCommand extends Command {
 
     private final Dynamics dynamics = new Dynamics();
 
+    private boolean isProfileDone = false;
     // Command
 
     private WindmillMoveCommand(Pair<TrajectoryState, TrajectoryState> fromTo, WindmillTrajectory trajectory) {
@@ -82,18 +85,29 @@ public class WindmillMoveCommand extends Command {
 
         windmill.setTargetState(fromTo.getSecond());
 
+        isProfileDone = false;
+
         if(fromTo.getSecond() != TrajectoryState.STOW) windmill.setWillMoveToL4OnAutoAlign(false);
 
         Logger.info("Running trajectory: '{}' ({} seconds)", trajectory.name, trajectory.getTotalTimeSeconds());
         timer.restart();
     }
 
+    MotionState elevState = new MotionState();
+    MotionState armState = new MotionState();
+
     @Override
     public void execute() {
         if (broken) { return; }
 
         double time = timer.get();
-        WindmillState state = trajectory.sample(time);
+        isProfileDone = trajectory.sample(time, elevState, armState);
+
+        WindmillState state = new WindmillState(
+            time,
+            new WindmillState.ElevatorState(elevState.position, elevState.velocity, elevState.acceleration),
+            new WindmillState.ArmState(armState.position, armState.velocity, armState.acceleration)
+        );
 
         Dynamics.Voltages ffVoltages = dynamics.inverseDynamics(state, 0.0, false);
 
@@ -114,7 +128,7 @@ public class WindmillMoveCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        return broken || windmill.isAtTargetTrajectoryState() || timer.hasElapsed(trajectory.getTotalTimeSeconds() + TIME_ELAPSED_TOLERANCE);
+        return broken || isProfileDone && (windmill.isAtTargetTrajectoryState() || timer.hasElapsed(trajectory.getTotalTimeSeconds() + TIME_ELAPSED_TOLERANCE));
     }
 
     @Override

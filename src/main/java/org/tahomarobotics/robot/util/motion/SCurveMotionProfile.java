@@ -24,24 +24,28 @@ package org.tahomarobotics.robot.util.motion;
 
 public class SCurveMotionProfile extends MotionProfile {
 
-    @Override
-    public MotionProfile updateEndTime(double endTime) {
-        throw new UnsupportedOperationException("not available for s-curve");
-    }
-
     public SCurveMotionProfile(double startTime, double startPosition, double endPosition, double startVelocity, double endVelocity, double maxVelocity, double maxAcceleration, double maxJerk) throws MotionProfileException {
-        super(startTime, startPosition, endPosition, startVelocity, endVelocity, maxVelocity, maxAcceleration, maxJerk);
+        this(startTime, startPosition, endPosition, startVelocity, endVelocity, maxVelocity, maxAcceleration, maxJerk, false, false);
     }
 
+    public SCurveMotionProfile(double startTime, double startPosition, double endPosition, double startVelocity, double endVelocity, double maxVelocity, double maxAcceleration, double maxJerk, boolean rotational, boolean reverse) throws MotionProfileException {
+        super(startTime, startPosition, endPosition, startVelocity, endVelocity, maxVelocity, maxAcceleration, maxJerk, rotational, reverse);
+    }
     @Override
     protected MotionState[] generatePhases() throws MotionProfileException {
 
         // TODO: what about start and end velocities?
-        if (startVelocity != 0 || endVelocity != 0) {
+        if (startVelocity != 0d || endVelocity != 0d) {
             throw new MotionProfileException("S-Curve profiles not defined for with non-zero velocity end points");
         }
 
-        final double distance = endPosition - startPosition;
+        // all velocity and acceleration will be corrected for sign
+        double dist = endPosition - startPosition;
+
+        double opp_dist = (Math.abs(dist) - Math.PI*2d) * Math.signum(dist);
+        double rotationalDistance = (Math.abs(dist) < Math.abs(opp_dist)) ^ reverse ? dist : opp_dist;
+
+        final double distance = rotational ? rotationalDistance : dist;
         final double abs_distance = Math.abs(distance);
         final double direction = Math.signum(distance);
 

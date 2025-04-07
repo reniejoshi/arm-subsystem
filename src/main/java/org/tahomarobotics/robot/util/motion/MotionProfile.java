@@ -23,8 +23,6 @@ package org.tahomarobotics.robot.util.motion;
 
 public abstract class MotionProfile {
 
-	public abstract MotionProfile updateEndTime(double endTime) throws MotionProfileException;
-
 	public static class MotionProfileException extends Exception {
 
 		public MotionProfileException(String message) {
@@ -33,7 +31,7 @@ public abstract class MotionProfile {
 		
 	}
 	
-	private final MotionState[] phases;
+	protected final MotionState[] phases;
 
 	public final double startTime;
 	protected final double startPosition;
@@ -43,8 +41,10 @@ public abstract class MotionProfile {
 	protected final double maxVelocity;
 	protected final double maxAcceleration;
 	protected final double maxJerk;
+	protected final boolean rotational;
+	protected final boolean reverse;
 	
-	MotionProfile(double startTime, double startPosition, double endPosition, double startVelocity, double endVelocity, double maxVelocity, double maxAcceleration, double maxJerk) throws MotionProfileException {
+	MotionProfile(double startTime, double startPosition, double endPosition, double startVelocity, double endVelocity, double maxVelocity, double maxAcceleration, double maxJerk, boolean rotational, boolean reverse) throws MotionProfileException {
 		this.startTime = startTime;
 		this.startPosition = startPosition;
 		this.endPosition = endPosition;
@@ -53,10 +53,27 @@ public abstract class MotionProfile {
 		this.maxVelocity = maxVelocity;
 		this.maxAcceleration = maxAcceleration;
 		this.maxJerk = maxJerk;
-		
+		this.rotational = rotational;
+		this.reverse = reverse;
+
+		validate("Input parameters", startTime, startPosition, endPosition, startVelocity, endVelocity, maxVelocity, maxAcceleration, maxJerk);
+
 		phases = generatePhases();
+
+		for (var phase : phases) {
+			validate("Phase values", phase.time, phase.position, phase.velocity, phase.acceleration, phase.jerk);
+		}
+
 	}
-	
+
+	private void validate(String validationMemo, double...numbers) throws MotionProfileException {
+		for(var number : numbers) {
+			if (Double.isNaN(number)) {
+				throw new MotionProfileException(validationMemo);
+			}
+		}
+	}
+
 	protected abstract MotionState[] generatePhases() throws MotionProfileException;
 	
 	protected MotionState getPhaseSetpoint(final double dt, final MotionState initial, MotionState setpoint) {
