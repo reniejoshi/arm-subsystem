@@ -163,8 +163,12 @@ public final class WindmillConstants {
 
     static {
         switch (Identity.robotID) {
-            case BEEF, BEARRACUDA -> {
+            case BEEF -> {
                 ELEVATOR_GEAR_REDUCTION = 10d / 52d;
+                ARM_ROTOR_TO_ENCODER = 8d / 60d * 24d / 50d;
+            }
+            case BEARRACUDA -> {
+                ELEVATOR_GEAR_REDUCTION = 12d / 52d;
                 ARM_ROTOR_TO_ENCODER = 8d / 60d * 24d / 50d;
             }
             default -> {
