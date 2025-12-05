@@ -22,9 +22,18 @@
 
 package org.tahomarobotics.robot;
 
-import edu.wpi.first.math.geometry.Translation2d;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.TalonFX;
 
-public final class RobotMap {
-    public final static int PIGEON = 0; // Internal IMU. Will not be used in Extra Programming Projects (Robot)
-    public final static int ARM_MOTOR=1;
+
+
+
+public class ArmSubsystem {
+
+    TalonFX armMotor = new TalonFX(RobotMap.ARM_MOTOR);
+    PositionVoltage posControl = new PositionVoltage(0);
+    VoltageOut voltControl = new VoltageOut(0);
 }
+
+

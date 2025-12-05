@@ -22,9 +22,11 @@
 
 package org.tahomarobotics.robot;
 
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.measure.Angle;
 
-public final class RobotMap {
-    public final static int PIGEON = 0; // Internal IMU. Will not be used in Extra Programming Projects (Robot)
-    public final static int ARM_MOTOR=1;
+import static edu.wpi.first.units.Units.Degrees;
+
+public class ArmConstants {
+public static final Angle MIN_POSITON= Degrees.of(0);
+public static final Angle MAX_POSITION= Degrees.of(180);
 }
