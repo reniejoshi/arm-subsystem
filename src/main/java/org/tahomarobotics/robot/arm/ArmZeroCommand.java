@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-package org.tahomarobotics.robot;
+package org.tahomarobotics.robot.arm;
 
 public class ArmZeroCommand {
 
