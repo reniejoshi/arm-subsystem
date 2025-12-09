@@ -22,5 +22,11 @@
 
 package org.tahomarobotics.robot.arm;
 
+import edu.wpi.first.units.measure.Angle;
+
+import static edu.wpi.first.units.Units.Degrees;
+
 public class ArmConstants {
+    public static final Angle MIN_POSITON= Degrees.of(0);
+    public static final Angle MAX_POSITION= Degrees.of(180);
 }

@@ -20,11 +20,11 @@
  * THE SOFTWARE.
  */
 
-package org.tahomarobotics.robot;
+package org.tahomarobotics.robot.arm;
 
-import edu.wpi.first.math.geometry.Translation2d;
+public class ArmZeroCommand {
 
-public final class RobotMap {
-    public final static int PIGEON = 0; // Internal IMU. Will not be used in Extra Programming Projects (Robot)
-    public final static int ARM_MOTOR=1;
+
+
+
 }
