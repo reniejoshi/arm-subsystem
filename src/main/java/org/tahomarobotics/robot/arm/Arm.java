@@ -22,6 +22,8 @@
 
 package org.tahomarobotics.robot.arm;
 
+import edu.wpi.first.wpilibj2.command.Command;
+
 public class Arm {
     final ArmSubsystem arm;
 
@@ -31,5 +33,13 @@ public class Arm {
 
     Arm(ArmSubsystem arm) {
         this.arm = arm;
+    }
+
+    public Command moveArmClockwise() {
+        return arm.runOnce(arm::moveArmClockwise);
+    }
+
+    public Command moveArmCounterclockwise() {
+        return arm.runOnce(arm::moveArmCounterclockwise);
     }
 }
