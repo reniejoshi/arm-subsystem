@@ -89,11 +89,19 @@ public class OI {
         return -desensitizePowerBased(controller.getRightX(), ROTATIONAL_SENSITIVITY);
     }
 
+    public double getRightY() {
+        return -desensitizeDeadbandBased(controller.getRightY());
+    }
     // -- Helper Methods --
 
     public double desensitizePowerBased(double value, double power) {
         value = MathUtil.applyDeadband(value, DEADBAND);
         value *= Math.pow(Math.abs(value), power - 1);
+        return value;
+    }
+
+    public double desensitizeDeadbandBased(double value) {
+        value = MathUtil.applyDeadband(value, DEADBAND);
         return value;
     }
 }
