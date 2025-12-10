@@ -24,6 +24,8 @@ package org.tahomarobotics.robot.arm;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
+import java.util.function.DoubleSupplier;
+
 public class Arm {
     final ArmSubsystem arm;
 
@@ -35,11 +37,11 @@ public class Arm {
         this.arm = arm;
     }
 
-    public Command moveArmClockwise() {
-        return arm.runOnce(arm::moveArmClockwise);
+    public Command setArmPosition(DoubleSupplier rightYSupplier) {
+        return arm.runOnce(() -> arm.setArmPosition(rightYSupplier));
     }
 
-    public Command moveArmCounterclockwise() {
-        return arm.runOnce(arm::moveArmCounterclockwise);
+    public void setDefaultCommand(Command defaultCommand) {
+        arm.setDefaultCommand(defaultCommand);
     }
 }
