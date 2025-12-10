@@ -22,7 +22,16 @@
 
 package org.tahomarobotics.robot.arm;
 
-public class ArmZeroCommand {
+import edu.wpi.first.wpilibj2.command.Command;
+import org.tahomarobotics.robot.RobotContainer;
+
+public class ArmZeroCommand extends Command {
+    private final  Arm arm
+    public ArmZeroCommand(Arm arm) {
+        this.arm = arm;
+        addRequirements(this.arm);
+    }
+
 
 
 
