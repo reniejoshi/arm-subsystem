@@ -29,4 +29,5 @@ import static edu.wpi.first.units.Units.Degrees;
 public class ArmConstants {
     public static final Angle MIN_POSITON= Degrees.of(0);
     public static final Angle MAX_POSITION= Degrees.of(180);
+    public static final double TIMEOUT= 1;
 }
