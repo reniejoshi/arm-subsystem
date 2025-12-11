@@ -44,5 +44,7 @@ public class ArmSubsystem extends AbstractSubsystem {
     @Override
     public void subsystemPeriodic() {
         armMotorPosition.refresh();
+
+        Logger.recordOutput("Arm/Arm Motor Position", armMotorPosition.getValue());
     }
 }
