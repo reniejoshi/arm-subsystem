@@ -41,6 +41,10 @@ public class Arm {
         return arm.runOnce(() -> arm.setArmPosition(rightYSupplier));
     }
 
+    public Command zero() {
+        return new ArmZeroCommand(arm);
+    }
+
     public void setDefaultCommand(Command defaultCommand) {
         arm.setDefaultCommand(defaultCommand);
     }
