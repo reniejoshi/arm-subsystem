@@ -22,9 +22,31 @@
 
 package org.tahomarobotics.robot.arm;
 
-public class ArmZeroCommand {
+import edu.wpi.first.wpilibj2.command.Command;
+
+import edu.wpi.first.wpilibj.Timer;
+
+import static org.tahomarobotics.robot.arm.ArmConstants.TIMEOUT;
 
 
+public class ArmZeroCommand extends Command {
+    public final ArmSubsystem arm;
+    public ArmZeroCommand(ArmSubsystem arm) {
+        this.arm = arm;
+        addRequirements(this.arm);
+    }
+    public final Timer timer= new Timer();
+    @Override
+    public void initialize() {
+    timer.restart();
+    }
+    @Override
+    public boolean isFinished() {
+        return hasStopped() || timer.hasElapsed(TIMEOUT);
+    }
 
 
+    private boolean hasStopped() {
+        return timer.hasElapsed(0.1);
+    }
 }
