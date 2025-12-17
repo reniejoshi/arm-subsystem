@@ -28,10 +28,11 @@ import edu.wpi.first.units.measure.Angle;
 import static edu.wpi.first.units.Units.Degrees;
 
 public class ArmConstants {
-    public static final double MIN_POSITION= Units.degreesToRadians(0);
-    public static final double MAX_POSITION= Units.degreesToRadians(180);
+    // Arm limits
+    public static final double MIN_POSITION= Units.degreesToRotations(0);
+    public static final double MAX_POSITION= Units.degreesToRotations(180);
     public static final double TIMEOUT= 1;
-    public static final double INCREMENT = 1;
+    public static final double INCREMENT = Units.degreesToRotations(2);
     public static final double ZEROING_VOLTAGE= -2;
     public static final double ZERO_POSITION= 0;
 
