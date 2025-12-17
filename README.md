@@ -1,16 +1,12 @@
-# Extra Programming Projects (Robot) Repository Template
-This is a template to allow programming members to start new robot projects with the correct existing architecture.
+# Arm Subsystem
+- Length: 10 in
+- Mass: 10 lbs
 
-**DO NOT MODIFY THIS REPO**
+## Device IDs
+- Arm Motor - 1
 
-
-## How to Use this Repository
-In the top left of your screen, there should be a fork button. Use that button to fork this repo into a new one under your profile, then make it a public repo to work with others on the project.
-
-This project contains:
-- AdvantageKit Logging
-- TinyLog Logging
-- AbstractSubsystem util
-- RobotContainer and OI skeletons
-- RobotMap and RobotConfiguration skeletons
-- Basic WPILib setup in Robot
+## Controls & Capabilities
+- Limits: 0 deg to 180 deg
+- The arm should hold position in whatever position it is in.
+- Drive Right Joystick (y-axis) - Up moves arm clockwise, Down moves arm counterclockwise.
+- If the arm is at or past its limit, it should only allow movement that would bring it back into its limits.
