@@ -28,6 +28,7 @@ import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -35,6 +36,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.tahomarobotics.robot.arm.Arm;
 import org.tinylog.Logger;
 
@@ -71,6 +73,7 @@ public class OI {
     // -- Bindings --
 
     public void configureControllerBindings() {
+        new Trigger(RobotState::isEnabled).onTrue(arm.zero());
         arm.setDefaultCommand(arm.setArmPosition(this::getRightY));
     }
 
