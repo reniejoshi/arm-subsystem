@@ -25,20 +25,19 @@ public class ArmSubsystem extends AbstractSubsystem {
     // Status signals
     private final StatusSignal<Angle> armMotorPosition = armMotor.getPosition();
 
+    // Target position
+    private double targetPosition = 0;
+
     public void setArmPosition(DoubleSupplier rightYSupplier) {
         double y = rightYSupplier.getAsDouble();
         Logger.recordOutput("Arm/Right Y Axis", y);
 
-        double targetPositionDouble = armMotorPosition.getValueAsDouble();
-        if (y > 0) {
-            targetPositionDouble += ArmConstants.INCREMENT;
-        } else if (y < 0) {
-            targetPositionDouble -= ArmConstants.INCREMENT;
-        }
-
-        Angle targetPosition = Degrees.of(MathUtil.clamp(targetPositionDouble, ArmConstants.MIN_POSITION, ArmConstants.MAX_POSITION));
-        armMotor.setControl(posControl.withPosition(targetPosition));
-        Logger.recordOutput("Arm/Target Arm Position", targetPosition);
+        double increase = y * ArmConstants.INCREMENT;
+        targetPosition = MathUtil.clamp(
+            targetPosition + increase,
+            ArmConstants.MIN_POSITION,
+            ArmConstants.MAX_POSITION);
+        armMotor.setControl(posControl.withPosition(Degrees.of(targetPosition)));
     }
 
     @Override
@@ -46,5 +45,6 @@ public class ArmSubsystem extends AbstractSubsystem {
         armMotorPosition.refresh();
 
         Logger.recordOutput("Arm/Arm Motor Position", armMotorPosition.getValue());
+        Logger.recordOutput("Arm/Target Arm Position", targetPosition);
     }
 }
