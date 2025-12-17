@@ -49,4 +49,11 @@ public class ArmZeroCommand extends Command {
     private boolean hasStopped() {
         return timer.hasElapsed(0.1);
     }
+
+    public void end(boolean interrupted) {
+    
+    }
+
+
+
 }

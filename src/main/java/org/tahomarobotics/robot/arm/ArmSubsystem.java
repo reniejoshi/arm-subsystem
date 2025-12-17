@@ -13,6 +13,8 @@ import org.tahomarobotics.robot.util.AbstractSubsystem;
 import java.util.function.DoubleSupplier;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static org.tahomarobotics.robot.arm.ArmConstants.ZEROING_VOLTAGE;
+import static org.tahomarobotics.robot.arm.ArmConstants.ZERO_POSITION;
 
 public class ArmSubsystem extends AbstractSubsystem {
     // Motors
@@ -39,6 +41,13 @@ public class ArmSubsystem extends AbstractSubsystem {
         Angle targetPosition = Degrees.of(MathUtil.clamp(targetPositionDouble, ArmConstants.MIN_POSITION, ArmConstants.MAX_POSITION));
         armMotor.setControl(posControl.withPosition(targetPosition));
         Logger.recordOutput("Arm/Target Arm Position", targetPosition);
+    }
+    public void applyZeroVoltage(double volts){
+        armMotor.setControl(voltControl.withOutput(ZEROING_VOLTAGE));
+    }
+    public void setZeroPosition(){
+        armMotor.setControl(voltControl.withOutput(ZERO_POSITION));
+        armMotor.setPosition(ZERO_POSITION);
     }
 
     @Override

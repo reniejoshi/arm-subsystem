@@ -32,4 +32,7 @@ public class ArmConstants {
     public static final double MAX_POSITION= Units.degreesToRadians(180);
     public static final double TIMEOUT= 1;
     public static final double INCREMENT = 1;
+    public static final double ZEROING_VOLTAGE= -2;
+    public static final double ZERO_POSITION= 0;
+
 }
