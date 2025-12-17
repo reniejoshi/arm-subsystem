@@ -39,7 +39,9 @@ public class ArmZeroCommand extends Command {
     @Override
     public void initialize() {
     timer.restart();
+    arm.applyZeroVoltage(0);
     }
+
     @Override
     public boolean isFinished() {
         return hasStopped() || timer.hasElapsed(TIMEOUT);
@@ -49,4 +51,12 @@ public class ArmZeroCommand extends Command {
     private boolean hasStopped() {
         return timer.hasElapsed(0.1);
     }
+
+    public void end(boolean interrupted) {
+    arm.setZeroPosition();
+
+    }
+
+
+
 }
