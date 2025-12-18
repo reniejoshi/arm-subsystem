@@ -23,7 +23,6 @@
 package org.tahomarobotics.robot.arm;
 
 import edu.wpi.first.wpilibj2.command.Command;
-
 import edu.wpi.first.wpilibj.Timer;
 
 import static org.tahomarobotics.robot.arm.ArmConstants.TIMEOUT;
@@ -31,32 +30,26 @@ import static org.tahomarobotics.robot.arm.ArmConstants.TIMEOUT;
 
 public class ArmZeroCommand extends Command {
     public final ArmSubsystem arm;
+
+    public final Timer timer = new Timer();
+
     public ArmZeroCommand(ArmSubsystem arm) {
         this.arm = arm;
         addRequirements(this.arm);
     }
-    public final Timer timer= new Timer();
+
     @Override
     public void initialize() {
-    timer.restart();
-    arm.applyZeroVoltage(0);
+        timer.restart();
+        arm.applyZeroVoltage();
     }
 
     @Override
     public boolean isFinished() {
-        return hasStopped() || timer.hasElapsed(TIMEOUT);
-    }
-
-
-    private boolean hasStopped() {
-        return timer.hasElapsed(0.1);
+        return arm.hasStopped() || timer.hasElapsed(TIMEOUT);
     }
 
     public void end(boolean interrupted) {
-    arm.setZeroPosition();
-
+        arm.setZeroPosition();
     }
-
-
-
 }

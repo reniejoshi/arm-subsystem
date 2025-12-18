@@ -49,6 +49,3 @@ public class Arm {
         arm.setDefaultCommand(defaultCommand);
     }
 }
-
-
-
