@@ -24,6 +24,7 @@ package org.tahomarobotics.robot.arm;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj.Timer;
+import org.tinylog.Logger;
 
 import static org.tahomarobotics.robot.arm.ArmConstants.TIMEOUT;
 
@@ -34,6 +35,7 @@ public class ArmZeroCommand extends Command {
     public final Timer timer = new Timer();
 
     public ArmZeroCommand(ArmSubsystem arm) {
+        Logger.info("Creating instance of ArmZeroCommand....");
         this.arm = arm;
         addRequirements(this.arm);
     }

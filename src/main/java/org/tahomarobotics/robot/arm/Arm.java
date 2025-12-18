@@ -23,14 +23,16 @@
 package org.tahomarobotics.robot.arm;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import org.tinylog.Logger;
 
 import java.util.function.DoubleSupplier;
 
 public class Arm {
-    final ArmSubsystem arm;
+    private final ArmSubsystem arm;
 
     public Arm() {
         this(new ArmSubsystem());
+        Logger.info("Creating instance of Arm....");
     }
 
     Arm(ArmSubsystem arm) {
