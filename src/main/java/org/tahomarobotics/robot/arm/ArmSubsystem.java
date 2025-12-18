@@ -9,12 +9,10 @@ import edu.wpi.first.units.measure.Angle;
 import org.littletonrobotics.junction.Logger;
 import org.tahomarobotics.robot.RobotMap;
 import org.tahomarobotics.robot.util.AbstractSubsystem;
-
 import java.util.function.DoubleSupplier;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static org.tahomarobotics.robot.arm.ArmConstants.ZEROING_VOLTAGE;
-import static org.tahomarobotics.robot.arm.ArmConstants.ZERO_POSITION;
+import static org.tahomarobotics.robot.arm.ArmConstants.*;
 
 public class ArmSubsystem extends AbstractSubsystem {
     // Motors
@@ -30,6 +28,8 @@ public class ArmSubsystem extends AbstractSubsystem {
     // Target position
     private double targetPosition = 0;
 
+    private boolean isZeroed = false;
+
     public void setArmPosition(DoubleSupplier rightYSupplier) {
         double y = rightYSupplier.getAsDouble();
         Logger.recordOutput("Arm/Right Y Axis", y);
@@ -41,19 +41,28 @@ public class ArmSubsystem extends AbstractSubsystem {
             ArmConstants.MAX_POSITION);
         armMotor.setControl(posControl.withPosition(Degrees.of(targetPosition)));
     }
-    public void applyZeroVoltage(double volts){
+
+    public void applyZeroVoltage(){
         armMotor.setControl(voltControl.withOutput(ZEROING_VOLTAGE));
     }
+
     public void setZeroPosition(){
         armMotor.setControl(voltControl.withOutput(ZERO_POSITION));
         armMotor.setPosition(ZERO_POSITION);
+        armMotor.setControl(posControl.withPosition(ZERO_POSITION));
+        isZeroed = true;
+    }
+
+    public boolean hasStopped() {
+        return armMotorPosition.getValue().isNear(Degrees.of(0), THRESHOLD);
     }
 
     @Override
     public void subsystemPeriodic() {
         armMotorPosition.refresh();
 
-        Logger.recordOutput("Arm/Arm Motor Position", armMotorPosition.getValue());
+        Logger.recordOutput("Arm/Is Zeroed", isZeroed);
+        Logger.recordOutput("Arm/Arm Motor Position", armMotorPosition.getValue().in(Degrees));
         Logger.recordOutput("Arm/Target Arm Position", targetPosition);
     }
 }

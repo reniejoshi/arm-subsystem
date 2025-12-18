@@ -23,17 +23,17 @@
 package org.tahomarobotics.robot.arm;
 
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Angle;
-
-import static edu.wpi.first.units.Units.Degrees;
 
 public class ArmConstants {
     // Arm limits
-    public static final double MIN_POSITION= Units.degreesToRotations(0);
-    public static final double MAX_POSITION= Units.degreesToRotations(180);
-    public static final double TIMEOUT= 1;
-    public static final double INCREMENT = Units.degreesToRotations(2);
-    public static final double ZEROING_VOLTAGE= -2;
-    public static final double ZERO_POSITION= 0;
+    public static final double MIN_POSITION = Units.degreesToRotations(0);
+    public static final double MAX_POSITION = Units.degreesToRotations(180);
 
+    public static final double INCREMENT = Units.degreesToRotations(2);
+
+    // Zeroing constants
+    public static final double TIMEOUT = 1;
+    public static final double ZEROING_VOLTAGE = -2;
+    public static final double ZERO_POSITION = 0;
+    public static final double THRESHOLD = 0.5;
 }
