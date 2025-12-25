@@ -53,7 +53,7 @@ public class ArmSubsystem extends AbstractSubsystem {
         isZeroed = true;
     }
 
-    public boolean hasStopped() {
+    public boolean hasArmMotorStopped() {
         return armMotorPosition.getValue().isNear(Degrees.of(0), THRESHOLD);
     }
 

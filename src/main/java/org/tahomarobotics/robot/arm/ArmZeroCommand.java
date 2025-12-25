@@ -48,10 +48,14 @@ public class ArmZeroCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        return arm.hasStopped() || timer.hasElapsed(TIMEOUT);
+        return hasStopped() || timer.hasElapsed(TIMEOUT);
     }
 
     public void end(boolean interrupted) {
         arm.setZeroPosition();
+    }
+
+    private boolean hasStopped() {
+        return timer.hasElapsed(ArmConstants.INITIAL_MOVE_TIME) && arm.hasArmMotorStopped();
     }
 }

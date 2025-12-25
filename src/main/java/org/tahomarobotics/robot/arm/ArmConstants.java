@@ -33,6 +33,7 @@ public class ArmConstants {
 
     // Zeroing constants
     public static final double TIMEOUT = 1;
+    public static final double INITIAL_MOVE_TIME = 0.1;
     public static final double ZEROING_VOLTAGE = -2;
     public static final double ZERO_POSITION = 0;
     public static final double THRESHOLD = 0.5;
