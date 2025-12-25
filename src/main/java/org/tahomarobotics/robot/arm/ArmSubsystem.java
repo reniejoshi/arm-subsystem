@@ -1,11 +1,13 @@
 package org.tahomarobotics.robot.arm;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import org.littletonrobotics.junction.Logger;
 import org.tahomarobotics.robot.RobotMap;
 import org.tahomarobotics.robot.util.AbstractSubsystem;
@@ -24,6 +26,7 @@ public class ArmSubsystem extends AbstractSubsystem {
 
     // Status signals
     private final StatusSignal<Angle> armMotorPosition = armMotor.getPosition();
+    private final StatusSignal<AngularVelocity> armMotorVelocity = armMotor.getVelocity();
 
     // Target position
     private double targetPosition = 0;
@@ -54,12 +57,12 @@ public class ArmSubsystem extends AbstractSubsystem {
     }
 
     public boolean hasArmMotorStopped() {
-        return armMotorPosition.getValue().isNear(Degrees.of(0), THRESHOLD);
+        return armMotorVelocity.getValue().isNear(Degrees.of(0), THRESHOLD);
     }
 
     @Override
     public void subsystemPeriodic() {
-        armMotorPosition.refresh();
+        BaseStatusSignal.refreshAll(armMotorPosition, armMotorVelocity);
 
         Logger.recordOutput("Arm/Is Zeroed", isZeroed);
         Logger.recordOutput("Arm/Arm Motor Position", armMotorPosition.getValue().in(Degrees));
